@@ -1,14 +1,42 @@
 # MSSQL MCP Server
 
-A Model Context Protocol (MCP) server that provides access to Microsoft SQL Server databases. This server enables Language Models to inspect database schemas, execute queries, and manage data through a standardized interface.
+A Model Context Protocol (MCP) server that provides comprehensive access to Microsoft SQL Server databases. This enhanced server enables Language Models to inspect database schemas, execute queries, manage database objects, and perform advanced database operations through a standardized interface.
 
-## Features
+## 🚀 Enhanced Features
 
+### **Complete Database Schema Traversal**
+- **23 comprehensive database management tools** (expanded from 5 basic operations)
+- **Full database object hierarchy exploration** - tables, views, stored procedures, indexes, schemas
+- **Advanced database object management** - create, modify, delete operations
+- **Intelligent resource access** - all tables and views available as MCP resources
+
+### **Core Capabilities**
 - **Database Connection**: Connect to MSSQL Server instances with flexible authentication
-- **Schema Inspection**: List tables and describe table structures
-- **Query Execution**: Execute SELECT, INSERT, UPDATE, DELETE queries
-- **Resource Access**: Browse table data as MCP resources
-- **Security**: Read-only and write operations are separated into different tools
+- **Schema Inspection**: Complete database object exploration and management
+- **Query Execution**: Execute SELECT, INSERT, UPDATE, DELETE, and DDL queries
+- **Stored Procedure Management**: Create, modify, execute, and manage stored procedures
+- **View Management**: Create, modify, delete, and describe views
+- **Index Management**: Create, delete, and analyze indexes
+- **Resource Access**: Browse table and view data as MCP resources
+- **Security**: Read-only and write operations are properly separated and validated
+
+## ⚠️ Important Usage Guidelines for Engineering Teams
+
+### **Database Limitation**
+**🔴 CRITICAL: Limit to ONE database per MCP server instance**
+
+- This enhanced MCP server creates **up to 23 tools per database**
+- Cursor has a **40-tool limit** across all MCP servers
+- Using multiple database instances will exceed Cursor's tool limit
+- For multiple databases, use separate MCP server instances in different projects
+
+### **Tool Distribution**
+- **Core Tools**: 5 (read_query, write_query, list_tables, describe_table, create_table)
+- **Stored Procedures**: 6 tools (create, modify, delete, list, describe, execute, get_parameters)
+- **Views**: 5 tools (create, modify, delete, list, describe)
+- **Indexes**: 4 tools (create, delete, list, describe)
+- **Schema Management**: 2 tools (list_schemas, list_all_objects)
+- **Enhanced write_query**: Supports all database object operations
 
 ## Installation
 
@@ -114,20 +142,50 @@ The server will start and wait for MCP protocol messages on stdin. This is how A
    # Direct testing requires an MCP client or testing framework
    ```
 
-### Available Tools
+### Available Tools (23 Total)
 
-The server provides these tools for MCP clients:
+The enhanced server provides comprehensive database management tools:
 
-1. **`list_tables`** - List all tables in the database
-2. **`describe_table`** - Get schema information for a specific table
-3. **`read_query`** - Execute SELECT queries to read data
-4. **`write_query`** - Execute INSERT, UPDATE, DELETE queries
+#### **Core Database Operations (5 tools)**
+1. **`read_query`** - Execute SELECT queries to read data
+2. **`write_query`** - Execute INSERT, UPDATE, DELETE, and DDL queries
+3. **`list_tables`** - List all tables in the database
+4. **`describe_table`** - Get schema information for a specific table
 5. **`create_table`** - Create new tables
+
+#### **Stored Procedure Management (6 tools)**
+6. **`create_procedure`** - Create new stored procedures
+7. **`modify_procedure`** - Modify existing stored procedures
+8. **`delete_procedure`** - Delete stored procedures
+9. **`list_procedures`** - List all stored procedures with metadata
+10. **`describe_procedure`** - Get complete procedure definitions
+11. **`execute_procedure`** - Execute procedures with parameters
+12. **`get_procedure_parameters`** - Get detailed parameter information
+
+#### **View Management (5 tools)**
+13. **`create_view`** - Create new views
+14. **`modify_view`** - Modify existing views
+15. **`delete_view`** - Delete views
+16. **`list_views`** - List all views in the database
+17. **`describe_view`** - Get view definitions and schema
+
+#### **Index Management (4 tools)**
+18. **`create_index`** - Create new indexes
+19. **`delete_index`** - Delete indexes
+20. **`list_indexes`** - List all indexes (optionally by table)
+21. **`describe_index`** - Get detailed index information
+
+#### **Schema Exploration (2 tools)**
+22. **`list_schemas`** - List all schemas in the database
+23. **`list_all_objects`** - List all database objects organized by schema
 
 ### Available Resources
 
-Tables are exposed as MCP resources with URIs like:
+Both tables and views are exposed as MCP resources with URIs like:
 - `mssql://table_name/data` - Access table data in CSV format
+- `mssql://view_name/data` - Access view data in CSV format
+
+Resources provide the first 100 rows of data in CSV format for quick data exploration.
 
 ## Integration with AI Assistants
 
@@ -199,7 +257,10 @@ The server uses Python's logging module. Set the log level by modifying the `log
 - **Network**: Ensure your database server is properly secured
 - **Permissions**: Grant only necessary database permissions to the user account
 - **SSL/TLS**: Use encrypted connections when possible
-- **Query Validation**: The server validates query types to prevent unauthorized operations
+- **Query Validation**: The server validates query types and prevents unauthorized operations
+- **DDL Operations**: Create/modify/delete operations for database objects are properly validated
+- **Stored Procedure Execution**: Parameters are safely handled to prevent injection attacks
+- **Read-First Approach**: Exploration tools are read-only by default for production safety
 
 ## Troubleshooting
 
