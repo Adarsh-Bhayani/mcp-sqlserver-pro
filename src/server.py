@@ -219,6 +219,53 @@ class MSSQLServer:
                     }
                 ),
                 Tool(
+    name="create_function",
+    description="Create a new user-defined function",
+    inputSchema={
+        "type": "object",
+        "properties": {
+            "function_script": {
+                "type": "string",
+                "description": "Complete T-SQL script to create the function (including CREATE FUNCTION statement)"
+            }
+        },
+        "required": ["function_script"]
+    }
+),Tool(
+    name="list_functions",
+    description="List all user-defined functions in the database",
+    inputSchema={
+        "type": "object",
+        "properties": {},
+        "additionalProperties": False
+    }
+),Tool(
+    name="describe_function",
+    description="Get the definition of a user-defined function",
+    inputSchema={
+        "type": "object",
+        "properties": {
+            "function_name": {
+                "type": "string",
+                "description": "Name of the function to describe"
+            }
+        },
+        "required": ["function_name"]
+    }
+),Tool(
+    name="execute_function",
+    description="Execute a scalar-valued user-defined function with parameters",
+    inputSchema={
+        "type": "object",
+        "properties": {
+            "function_name": {"type": "string"},
+            "parameters": {"type": "array", "items": {"type": "string"}}  # adapt as needed
+        },
+        "required": ["function_name"]
+    }
+),
+
+                Tool(
                     name="create_procedure",
                     description="Create a new stored procedure",
                     inputSchema={
@@ -245,7 +292,34 @@ class MSSQLServer:
                         },
                         "required": ["procedure_script"]
                     }
-                ),
+                ),Tool(
+    name="modify_function",
+    description="Modify an existing user-defined function",
+    inputSchema={
+        "type": "object",
+        "properties": {
+            "function_script": {
+                "type": "string",
+                "description": "Complete T-SQL script to modify the function (including ALTER FUNCTION statement)"
+            }
+        },
+        "required": ["function_script"]
+    }
+),
+                Tool(
+    name="delete_function",
+    description="Delete an existing user-defined function",
+    inputSchema={
+        "type": "object",
+        "properties": {
+            "function_name": {
+                "type": "string",
+                "description": "Name of the function to delete"
+            }
+        },
+        "required": ["function_name"]
+    }
+),
                 Tool(
                     name="delete_procedure",
                     description="Delete a stored procedure",
@@ -464,14 +538,84 @@ class MSSQLServer:
                             }
                         }
                     }
+                ),
+                Tool(
+                    name="get_table_size",
+                    description="Get the row count and disk space used by a table",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "table_name": {
+                                "type": "string",
+                                "description": "Name of the table to check size for"
+                            }
+                        },
+                        "required": ["table_name"]
+                    }
+                ),
+                Tool(
+                    name="get_unused_indexes",
+                    description="Get list of unused indexes in the database",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": False
+                    }
+                ),
+                Tool(
+                        name="get_missing_index_recommendations",
+                        description="Get missing index recommendations for the database",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": False
+                        }
+                ),
+                Tool(
+                    name="get_top_waits",
+                    description="Get top 10 wait types by wait time in SQL Server",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": False
+                    }
+                ),
+                Tool(
+                    name="get_blocking_sessions",
+                    description="Get current blocking session details in the database",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": False
+                    }
+                ),
+                Tool(
+                    name="get_recent_deadlock_graph",
+                    description="Get the most recent deadlock graph XML from system_health session",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": False
+                    }
                 )
+
             ]
 
         @self.server.call_tool()
         async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
             """Execute tool calls."""
             try:
-                if name == "read_query":
+                if name == "get_blocking_sessions":
+                    return await self._get_blocking_sessions()
+                elif name == "get_recent_deadlock_graph":
+                    return await self._get_recent_deadlock_graph()
+                elif name == "get_top_waits":
+                    return await self._get_top_waits()
+                elif name == "get_missing_index_recommendations":
+                    return await self._get_missing_index_recommendations()
+                elif name == "get_unused_indexes":
+                    return await self._get_unused_indexes()
+                elif name == "read_query":
                     return await self._execute_read_query(arguments["query"])
                 elif name == "write_query":
                     return await self._execute_write_query(arguments["query"])
@@ -483,6 +627,18 @@ class MSSQLServer:
                     return await self._create_table(arguments["query"])
                 elif name == "create_procedure":
                     return await self._create_procedure(arguments["procedure_script"])
+                elif name == "modify_function":
+                    return await self._modify_function(arguments["function_script"])
+                elif name == "delete_function":
+                    return await self._delete_function(arguments["function_name"])
+                elif name == "list_functions":
+                    return await self._list_functions()
+                elif name == "describe_function":
+                    return await self._describe_function(arguments["function_name"])
+                elif name == "execute_function":
+                    return await self._execute_function(arguments["function_name"], arguments.get("parameters", []))
+                elif name == "create_function":
+                    return await self._create_function(arguments["function_script"])
                 elif name == "modify_procedure":
                     return await self._modify_procedure(arguments["procedure_script"])
                 elif name == "delete_procedure":
@@ -517,12 +673,175 @@ class MSSQLServer:
                     return await self._list_schemas()
                 elif name == "list_all_objects":
                     return await self._list_all_objects(arguments.get("schema_name"))
+                elif name == "get_table_size":
+                    return await self._get_table_size(arguments["table_name"])
                 else:
                     raise ValueError(f"Unknown tool: {name}")
             except Exception as e:
                 logger.error(f"Error executing tool {name}: {e}")
                 return [TextContent(type="text", text=f"Error: {str(e)}")]
-
+    
+    async def _get_blocking_sessions(self) -> List[TextContent]:
+        sql = """
+        SELECT
+            blocking_session_id AS BlockingSessionID,
+            session_id AS BlockedSessionID,
+            wait_type,
+            wait_time,
+            last_wait_type,
+            wait_resource,
+            TEXT AS SqlText
+        FROM sys.dm_exec_requests r
+        CROSS APPLY sys.dm_exec_sql_text(r.sql_handle)
+        WHERE blocking_session_id != 0
+        ORDER BY wait_time DESC;
+        """
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+        except Exception as e:
+            return [TextContent(type="text", text=f"Error fetching blocking sessions: {str(e)}")]
+    
+        if not rows:
+            return [TextContent(type="text", text="No current blocking sessions detected.")]
+    
+        lines = ["Current Blocking Sessions:"]
+        for row in rows:
+            blocking_id, blocked_id, wait_type, wait_time, last_wait_type, wait_resource, sql_text = row
+            lines.append(
+                f"Blocking Session ID: {blocking_id}, Blocked Session ID: {blocked_id}\n"
+                f"  Wait Type: {wait_type}, Wait Time: {wait_time}ms, Last Wait Type: {last_wait_type}\n"
+                f"  Wait Resource: {wait_resource}\n"
+                f"  SQL Text: {sql_text}\n"
+                "--------------------------"
+            )
+        return [TextContent(type="text", text="\n".join(lines))]
+    
+    async def _get_recent_deadlock_graph(self) -> List[TextContent]:
+       sql = """
+       SELECT TOP 1 XEvent.query('(event/data/value/deadlock)[1]') AS DeadlockGraph
+       FROM 
+           (SELECT CAST(target_data AS XML) AS TargetData  
+            FROM sys.dm_xe_session_targets st
+            JOIN sys.dm_xe_sessions s ON s.address = st.event_session_address
+            WHERE s.name = 'system_health' AND st.target_name = 'ring_buffer') AS Data
+       CROSS APPLY 
+           TargetData.nodes('RingBufferTarget/event[@name="xml_deadlock_report"]') AS XEventData(XEvent)
+       ORDER BY XEventData.XEvent.value('@timestamp', 'datetime') DESC;
+       """
+       try:
+           with self._get_connection() as conn:
+               cursor = conn.cursor()
+               cursor.execute(sql)
+               row = cursor.fetchone()
+       except Exception as e:
+           return [TextContent(type="text", text=f"Error fetching deadlock info: {str(e)}")]
+   
+       if row and row[0] is not None:
+           deadlock_xml = row[0].text if hasattr(row[0], "text") else row[0]
+           return [TextContent(type="text", text=f"Most Recent Deadlock Graph XML:\n{deadlock_xml}")]
+       else:
+           return [TextContent(type="text", text="No recent deadlock detected.")]
+   
+    
+    async def _get_top_waits(self) -> List[TextContent]:
+       sql = """
+       SELECT TOP 10 
+           wait_type,
+           wait_time_ms / 1000.0 AS wait_time_seconds,
+           waiting_tasks_count,
+           signal_wait_time_ms / 1000.0 AS signal_wait_time_seconds
+       FROM sys.dm_os_wait_stats
+       WHERE wait_type NOT IN (
+           'CLR_SEMAPHORE', 'LAZYWRITER_SLEEP', 'RESOURCE_QUEUE', 'SLEEP_TASK',
+           'SLEEP_SYSTEMTASK', 'SQLTRACE_BUFFER_FLUSH', 'WAITFOR', 'LOGMGR_QUEUE',
+           'REQUEST_FOR_DEADLOCK_SEARCH', 'XE_TIMER_EVENT', 'XE_DISPATCHER_JOIN',
+           'BROKER_TO_FLUSH', 'BROKER_TASK_STOP', 'CLR_MANUAL_EVENT', 'CLR_AUTO_EVENT',
+           'DISPATCHER_QUEUE_SEMAPHORE', 'FT_IFTS_SCHEDULER_IDLE_WAIT', 'XE_DISPATCHER_WAIT',
+           'BROKER_EVENTHANDLER', 'TRACEWRITE', 'XE_BUFFERMGR_ALLPROCESSES_WAIT',
+           'SQLTRACE_INCREMENTAL_FLUSH_SLEEP'
+       )
+       ORDER BY wait_time_ms DESC;
+       """
+   
+       with self._get_connection() as conn:
+           cursor = conn.cursor()
+           cursor.execute(sql)
+           rows = cursor.fetchall()
+   
+       if not rows:
+           return [TextContent(type="text", text="No wait statistics found.")]
+   
+       lines = ["Top 10 wait types in SQL Server:"]
+       for wait_type, wait_time_sec, waiting_task_count, signal_wait_sec in rows:
+           lines.append(
+               f"Wait Type: {wait_type}\n"
+               f"  Wait Time (seconds): {wait_time_sec:.2f}\n"
+               f"  Waiting Tasks Count: {waiting_task_count}\n"
+               f"  Signal Wait Time (seconds): {signal_wait_sec:.2f}\n"
+               "----------------------------"
+           )
+   
+       return [TextContent(type="text", text="\n".join(lines))]
+    
+    async def _get_missing_index_recommendations(self) -> List[TextContent]:
+        sql = """
+        SELECT 
+            mid.[database_id],
+            DB_NAME(mid.[database_id]) AS DatabaseName,
+            OBJECT_NAME(mid.[object_id], mid.[database_id]) AS TableName,
+            migs.unique_compiles AS UserSeeks,
+            migs.user_seeks,
+            migs.user_scans,
+            mid.equality_columns,
+            mid.inequality_columns,
+            mid.included_columns,
+            'CREATE INDEX IX_' + OBJECT_NAME(mid.object_id, mid.database_id) + '_missing_' + 
+            REPLACE(REPLACE(REPLACE(ISNULL(mid.equality_columns, '') + ISNULL(mid.inequality_columns, ''), ', ', '_'), '[', ''), ']', '') 
+            + ' ON ' + OBJECT_SCHEMA_NAME(mid.object_id, mid.database_id) + '.' + OBJECT_NAME(mid.object_id, mid.database_id) + 
+            ' (' + ISNULL(mid.equality_columns, '') + 
+            CASE WHEN mid.inequality_columns IS NOT NULL AND mid.inequality_columns <> '' THEN 
+                CASE WHEN mid.equality_columns IS NOT NULL AND mid.equality_columns <> '' THEN ',' ELSE '' END + mid.inequality_columns 
+            ELSE '' END + ')' +
+            CASE WHEN mid.included_columns IS NOT NULL AND mid.included_columns <> '' THEN 
+                ' INCLUDE (' + mid.included_columns + ')' 
+            ELSE '' END AS CreateIndexStatement
+        FROM 
+            sys.dm_db_missing_index_groups mig
+            INNER JOIN sys.dm_db_missing_index_group_stats migs ON mig.index_group_handle = migs.group_handle
+            INNER JOIN sys.dm_db_missing_index_details mid ON mig.index_handle = mid.index_handle
+        WHERE 
+            DB_NAME(mid.database_id) = DB_NAME()
+        ORDER BY 
+            migs.user_seeks DESC
+        """
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            results = cursor.fetchall()
+    
+        if not results:
+            return [TextContent(type="text", text="No missing index recommendations found.")]
+    
+        lines = []
+        for row in results:
+            db_name, table_name, user_seeks, user_scans, equality_cols, inequality_cols, included_cols, create_stmt = (
+                row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]
+            )
+            lines.append(
+                f"Table: {table_name}\n"
+                f"User Seeks: {user_seeks}, User Scans: {user_scans}\n"
+                f"Equality Columns: {equality_cols}\n"
+                f"Inequality Columns: {inequality_cols}\n"
+                f"Included Columns: {included_cols}\n"
+                f"Suggested Index:\n{create_stmt}\n"
+                "-----------------------------"
+            )
+    
+        return [TextContent(type="text", text="\n".join(lines))]
+    
     async def _execute_read_query(self, query: str) -> List[TextContent]:
         """Execute a SELECT query."""
         if not query.strip().upper().startswith("SELECT"):
@@ -638,7 +957,65 @@ class MSSQLServer:
             conn.commit()
             
             return [TextContent(type="text", text="Table created successfully")]
+        
+    async def _create_function(self, function_script: str) -> List[TextContent]:
+        """Create a new user-defined function."""
+        if not function_script.strip().upper().startswith("CREATE FUNCTION"):
+           raise ValueError("Only CREATE FUNCTION statements are allowed")
+    
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(function_script)
+            conn.commit()
+        
+            return [TextContent(type="text", text="Function created successfully")]
+    
+    async def _modify_function(self, function_script: str) -> List[TextContent]:
+        if not function_script.strip().upper().startswith("ALTER FUNCTION"):
+            raise ValueError("Only ALTER FUNCTION statements are allowed")
+        with self._get_connection() as conn:
+          cursor = conn.cursor()
+          cursor.execute(function_script)
+          conn.commit()
+          return [TextContent(type="text", text="Function modified successfully")]
 
+    async def _delete_function(self, function_name: str) -> List[TextContent]:
+        with self._get_connection() as conn:
+          cursor = conn.cursor()
+          drop_script = f"DROP FUNCTION {function_name}"
+          cursor.execute(drop_script)
+          conn.commit()
+          return [TextContent(type="text", text=f"Function {function_name} deleted successfully")]
+
+    async def _list_functions(self) -> List[TextContent]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            query = """
+                SELECT name FROM sys.objects 
+                WHERE type IN ('FN', 'IF', 'TF')  -- scalar, inline table-valued, table-valued
+                ORDER BY name
+            """
+            cursor.execute(query)
+            functions = [row[0] for row in cursor.fetchall()]
+        return [TextContent(type="text", text="\n".join(functions))]
+    
+    async def _describe_function(self, function_name: str) -> List[TextContent]:
+       with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(f"EXEC sp_helptext '{function_name}'")
+            definition = "".join(row[0] for row in cursor.fetchall())
+       return [TextContent(type="text", text=definition)]
+
+    async def _execute_function(self, function_name: str, parameters: List[str]) -> List[TextContent]:
+        # Assumes scalar function with positional parameters
+        param_string = ", ".join(f"'{p}'" if isinstance(p, str) else str(p) for p in parameters)
+        sql = f"SELECT dbo.{function_name}({param_string})"
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            result = cursor.fetchone()
+            return [TextContent(type="text", text=f"Result: {result[0] if result else 'NULL'}")]
+    
     async def _create_procedure(self, procedure_script: str) -> List[TextContent]:
         """Create a new stored procedure."""
         if not procedure_script.strip().upper().startswith("CREATE PROCEDURE"):
@@ -1036,7 +1413,71 @@ class MSSQLServer:
                 result += f"- {obj[0]} | {obj[1]} | {obj[2]}\n"
             
             return [TextContent(type="text", text=result)]
+   
+    async def _get_table_size(self, table_name: str) -> List[TextContent]:
+       sql = f"""
+       SELECT
+        SUM(p.rows) AS row_count,
+        CAST(SUM(a.total_pages) * 8 / 1024.0 AS DECIMAL(10,2)) AS total_size_mb
+       FROM
+        sys.tables t
+        INNER JOIN sys.indexes i ON t.object_id = i.object_id
+        INNER JOIN sys.partitions p ON t.object_id = p.object_id AND i.index_id = p.index_id
+        INNER JOIN sys.allocation_units a ON p.partition_id = a.container_id
+       WHERE
+        t.name = ?
+       GROUP BY t.name"""
+    
+       with self._get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute(sql, (table_name,))
+        row = cursor.fetchone()
+        if row:
+            return [TextContent(
+                type="text",
+                text=f"Table '{table_name}' has {row[0]} rows and uses approximately {row[1]} MB."
+            )]
+        else:
+            return [TextContent(
+                type="text",
+                text=f"Table '{table_name}' not found."
+            )]
 
+
+    async def _get_unused_indexes(self) -> List[TextContent]:
+        sql = """
+        SELECT 
+            OBJECT_SCHEMA_NAME(i.object_id) AS SchemaName,
+            OBJECT_NAME(i.object_id) AS TableName,
+            i.name AS IndexName,
+            user_seeks + user_scans + user_lookups + user_updates AS TotalAccesses
+        FROM 
+            sys.dm_db_index_usage_stats s 
+            INNER JOIN sys.indexes i ON s.object_id = i.object_id AND s.index_id = i.index_id
+        WHERE 
+            OBJECTPROPERTY(i.object_id,'IsUserTable') = 1
+            AND s.database_id = DB_ID()
+            AND i.type_desc IN ('CLUSTERED', 'NONCLUSTERED')
+            AND (user_seeks + user_scans + user_lookups) = 0
+        ORDER BY 
+            TotalAccesses ASC
+        """
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+    
+        if not rows:
+            return [TextContent(type="text", text="No unused indexes found.")]
+    
+        text_lines = []
+        for row in rows:
+            schema, table, index_name, total_accesses = row
+            text_lines.append(f"Index '{index_name}' on table '{schema}.{table}' has no user seeks/scans/lookups (TotalAccesses={total_accesses})")
+    
+        return [TextContent(type="text", text="\n".join(text_lines))]
+
+    
     async def run(self):
         """Run the MCP server."""
         try:
@@ -1059,7 +1500,7 @@ class MSSQLServer:
             logger.error(f"Error in server run: {e}")
             logger.error(f"Traceback: {traceback.format_exc()}")
             raise
-
+    
 async def main():
     """Main entry point."""
     try:
