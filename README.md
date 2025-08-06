@@ -16,9 +16,9 @@ A powerful Model Context Protocol (MCP) server that provides complete access to 
 ## 🌟 Key Features
 
 ### **🎯 Comprehensive Database Management**
-- **35+ Database Tools** - Complete CRUD operations for all database objects
+- **9 Powerful Tools with 40+ Actions** - Streamlined tools with multiple actions for complete database operations
 - **Schema Exploration** - Full database hierarchy traversal (tables, views, procedures, functions, indexes)
-- **Advanced Analytics** - Performance monitoring, deadlock analysis, and optimization tools
+- **Advanced Analytics** - Enhanced performance monitoring, deadlock analysis, and optimization tools
 - **Resource Access** - All tables and views accessible as MCP resources
 - **Large Content Support** - Handles large stored procedures and complex database objects
 
@@ -36,6 +36,14 @@ A powerful Model Context Protocol (MCP) server that provides complete access to 
 - **Flexible Authentication** - Windows Authentication or SQL Server Authentication
 - **Resource Streaming** - Efficient handling of large data sets and complex objects
 - **Error Handling** - Comprehensive error reporting and validation
+- **Enhanced Performance Monitoring** - New capabilities for connection stats, slow queries, and failed logins
+
+### **🆕 New Enhanced Features**
+- **Advanced Performance Analytics** - Monitor slow queries, connection statistics, and failed login attempts
+- **Historical Blocking Analysis** - Track previous blocking sessions with configurable time ranges
+- **Index Fragmentation Analysis** - Identify fragmented indexes with customizable thresholds
+- **Comprehensive Database Statistics** - Get detailed performance metrics and query statistics
+- **Streamlined Tool Architecture** - 9 powerful tools with 40+ actions for better organization
 
 ## 🛠️ Complete Setup Guide
 
@@ -80,7 +88,7 @@ Before installing MCP SQL Server Pro, ensure you have the following:
    # Run installation
    ./install.sh
    ```
-   
+
    **For Windows (PowerShell):**
    ```powershell
    # Create virtual environment
@@ -140,10 +148,10 @@ The ODBC Driver 17 for SQL Server is **critical** for database connectivity.
 3. Follow installation wizard
 
 #### **macOS**
-```bash
+   ```bash
 # Using Homebrew
-brew tap microsoft/mssql-release
-brew install msodbcsql17 mssql-tools
+   brew tap microsoft/mssql-release
+   brew install msodbcsql17 mssql-tools
 
 # Alternative: Download from Microsoft
 # Visit: https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos
@@ -192,7 +200,7 @@ python -c "import pyodbc, pydantic, mcp; print('All dependencies imported succes
 ### **Environment Setup**
 
 1. **Create Configuration File**
-   ```bash
+```bash
    # Copy example configuration
    cp env.example .env
    
@@ -303,83 +311,124 @@ except Exception as e:
 
 ## 🔧 Available Tools (Complete List)
 
-MCP SQL Server Pro provides **35 comprehensive tools** organized into functional categories:
+MCP SQL Server Pro provides **9 powerful tools with 40+ actions** organized into functional categories:
 
-### **📊 Core Database Operations (5 tools)**
+### **📊 1. Query Tool**
+**Execute SQL queries with read/write actions**
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `read_query` | Execute SELECT queries to read data | `query` (string) - SELECT SQL query to execute |
-| `write_query` | Execute INSERT, UPDATE, DELETE queries | `query` (string) - SQL query to execute |
-| `list_tables` | List all tables in the database | None |
-| `describe_table` | Get detailed table schema information | `table_name` (string) - Name of table to describe |
-| `create_table` | Create new tables with DDL | `query` (string) - CREATE TABLE SQL statement |
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `read` | Execute SELECT queries to read data | `sql` (string) - SELECT SQL query to execute |
+| `write` | Execute INSERT, UPDATE, DELETE queries | `sql` (string) - SQL query to execute |
 
-### **🗃️ Table Management (2 tools)**
+**Usage:**
+```json
+{
+  "tool": "query",
+  "parameters": {
+    "action": "read",
+    "sql": "SELECT TOP 10 * FROM Customers"
+  }
+}
+```
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `get_table_size` | Get row count and disk space usage | `table_name` (string) - Name of table to check size for |
-| `list_all_objects` | List all database objects by schema | `schema_name` (optional string) - Filter by specific schema |
+### **🗃️ 2. Table Tool**
+**Manage database tables with comprehensive operations**
 
-### **📋 Stored Procedure Management (7 tools)**
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all tables in the database | None |
+| `describe` | Get detailed table schema information | `table_name` (string) |
+| `create` | Create new tables with DDL | `sql` (string) - CREATE TABLE statement |
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `create_procedure` | Create new stored procedures | `procedure_script` (string) - Complete T-SQL CREATE PROCEDURE script |
-| `modify_procedure` | Modify existing stored procedures | `procedure_script` (string) - Complete T-SQL ALTER PROCEDURE script |
-| `delete_procedure` | Delete stored procedures | `procedure_name` (string) - Name of procedure to delete |
-| `list_procedures` | List all stored procedures with metadata | None |
-| `describe_procedure` | Get complete procedure definitions | `procedure_name` (string) - Name of procedure to describe |
-| `execute_procedure` | Execute procedures with parameters | `procedure_name` (string), `parameters` (optional array) - Parameters for procedure |
-| `get_procedure_parameters` | Get detailed parameter information | `procedure_name` (string) - Name of procedure to get parameters for |
+**Usage:**
+```json
+{
+  "tool": "table",
+  "parameters": {
+    "action": "describe",
+    "table_name": "Customers"
+  }
+}
+```
 
-### **🔧 User-Defined Function Management (6 tools)**
+### **📋 3. Procedure Tool**
+**Complete stored procedure management**
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `create_function` | Create new user-defined functions | `function_script` (string) - Complete T-SQL CREATE FUNCTION script |
-| `modify_function` | Modify existing functions | `function_script` (string) - Complete T-SQL ALTER FUNCTION script |
-| `delete_function` | Delete user-defined functions | `function_name` (string) - Name of function to delete |
-| `list_functions` | List all user-defined functions | None |
-| `describe_function` | Get function definitions | `function_name` (string) - Name of function to describe |
-| `execute_function` | Execute scalar functions with parameters | `function_name` (string), `parameters` (optional array) - Function parameters |
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all stored procedures with metadata | None |
+| `describe` | Get complete procedure definitions | `procedure_name` (string) |
+| `create` | Create new stored procedures | `procedure_script` (string) |
+| `execute` | Execute procedures with parameters | `procedure_name` (string), `parameters` (array) |
+| `modify` | Modify existing stored procedures | `procedure_script` (string) |
+| `delete` | Delete stored procedures | `procedure_name` (string) |
+| `get_parameters` | Get detailed parameter information | `procedure_name` (string) |
 
-### **👁️ View Management (5 tools)**
+### **🔧 4. Function Tool**
+**User-defined function management**
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `create_view` | Create new views | `view_script` (string) - Complete T-SQL CREATE VIEW script |
-| `modify_view` | Modify existing views | `view_script` (string) - Complete T-SQL ALTER VIEW script |
-| `delete_view` | Delete views | `view_name` (string) - Name of view to delete |
-| `list_views` | List all views in the database | None |
-| `describe_view` | Get view definitions and schema | `view_name` (string) - Name of view to describe |
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all user-defined functions | None |
+| `describe` | Get function definitions | `function_name` (string) |
+| `create` | Create new functions | `function_script` (string) |
+| `execute` | Execute scalar functions | `function_name` (string), `parameters` (array) |
+| `modify` | Modify existing functions | `function_script` (string) |
+| `delete` | Delete functions | `function_name` (string) |
 
-### **🗂️ Index Management (4 tools)**
+### **👁️ 5. View Tool**
+**Database view management**
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `create_index` | Create new indexes | `index_script` (string) - Complete T-SQL CREATE INDEX script |
-| `delete_index` | Delete indexes | `index_name` (string), `table_name` (string) - Index and table names |
-| `list_indexes` | List all indexes (optionally by table) | `table_name` (optional string) - Filter by specific table |
-| `describe_index` | Get detailed index information | `index_name` (string), `table_name` (string) - Index and table names |
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all views in the database | None |
+| `describe` | Get view definitions and schema | `view_name` (string) |
+| `create` | Create new views | `view_script` (string) |
+| `modify` | Modify existing views | `view_script` (string) |
+| `delete` | Delete views | `view_name` (string) |
 
-### **📁 Schema Management (2 tools)**
+### **🗂️ 6. Index Tool**
+**Index management and operations**
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all indexes (optionally by table) | `table_name` (optional string) |
+| `describe` | Get detailed index information | `index_name` (string), `table_name` (string) |
+| `create` | Create new indexes | `index_script` (string) |
+| `delete` | Delete indexes | `index_name` (string), `table_name` (string) |
+
+### **📁 7. Schema Tool**
+**Database schema and metadata management**
+
+| Action | Description | Parameters |
+|--------|-------------|------------|
 | `list_schemas` | List all schemas in the database | None |
-| `list_all_objects` | List all database objects organized by schema | `schema_name` (optional string) - Filter by specific schema |
+| `list_objects` | List all database objects by schema | `schema_name` (optional string) |
+| `table_size` | Get row count and disk space usage | `table_name` (string) |
 
-### **📈 Performance & Analytics Tools (5 tools)**
+### **🔍 8. Index Analysis Tool**
+**Advanced index analysis and optimization**
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `get_unused_indexes` | Find unused indexes for optimization | None |
-| `get_missing_index_recommendations` | Get missing index suggestions | None |
-| `get_top_waits` | Get top 10 wait types by wait time | None |
-| `get_blocking_sessions` | Get current blocking session details | None |
-| `get_recent_deadlock_graph` | Get recent deadlock graph XML | None |
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `unused` | Find unused indexes for optimization | None |
+| `missing_recommendations` | Get missing index suggestions | None |
+| `fragmented` | Find fragmented indexes | `fragmentation_threshold` (number, default: 10) |
+
+### **📈 9. Performance Tool**
+**Comprehensive performance monitoring and analysis**
+
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `top_waits` | Get top wait types by wait time | None |
+| `connection_stats` | Get database connection statistics | None |
+| `blocking_sessions` | Get current blocking session details | None |
+| `deadlock_graph` | Get recent deadlock graph XML | None |
+| `previous_blocking` | Get historical blocking sessions | `hours_back` (number), `min_duration_seconds` (number) |
+| `database_stats` | Get comprehensive database performance stats | `include_query_stats` (boolean), `top_queries_count` (number) |
+| `slow_queries` | Get slow-performing queries | `min_elapsed_ms` (number), `top_n` (integer) |
+| `failed_logins` | Get failed login attempts | `time_period_minutes` (integer) |
 
 ### **📋 MCP Resources**
 
@@ -409,9 +458,10 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Query Data**
 ```json
 {
-  "tool": "read_query",
+  "tool": "query",
   "parameters": {
-    "query": "SELECT TOP 10 * FROM Customers ORDER BY CustomerID"
+    "action": "read",
+    "sql": "SELECT TOP 10 * FROM Customers ORDER BY CustomerID"
   }
 }
 ```
@@ -419,9 +469,10 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Insert Data**
 ```json
 {
-  "tool": "write_query",
+  "tool": "query",
   "parameters": {
-    "query": "INSERT INTO Customers (CustomerName, City, Country) VALUES ('New Customer', 'New York', 'USA')"
+    "action": "write",
+    "sql": "INSERT INTO Customers (CustomerName, City, Country) VALUES ('New Customer', 'New York', 'USA')"
   }
 }
 ```
@@ -429,12 +480,16 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Explore Database Structure**
 ```json
 {
-  "tool": "list_tables"
+  "tool": "table",
+  "parameters": {
+    "action": "list"
+  }
 }
 
 {
-  "tool": "describe_table",
+  "tool": "table",
   "parameters": {
+    "action": "describe",
     "table_name": "Customers"
   }
 }
@@ -445,8 +500,9 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Create a Comprehensive Stored Procedure**
 ```json
 {
-  "tool": "create_procedure",
+  "tool": "procedure",
   "parameters": {
+    "action": "create",
     "procedure_script": "CREATE PROCEDURE GetCustomerOrders\n    @CustomerID INT,\n    @StartDate DATE = NULL,\n    @EndDate DATE = NULL\nAS\nBEGIN\n    SELECT \n        o.OrderID,\n        o.OrderDate,\n        od.ProductID,\n        p.ProductName,\n        od.Quantity,\n        od.UnitPrice,\n        (od.Quantity * od.UnitPrice) AS LineTotal\n    FROM Orders o\n    INNER JOIN OrderDetails od ON o.OrderID = od.OrderID\n    INNER JOIN Products p ON od.ProductID = p.ProductID\n    WHERE o.CustomerID = @CustomerID\n    AND (@StartDate IS NULL OR o.OrderDate >= @StartDate)\n    AND (@EndDate IS NULL OR o.OrderDate <= @EndDate)\n    ORDER BY o.OrderDate DESC, od.ProductID\nEND"
   }
 }
@@ -455,25 +511,120 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Create a User-Defined Function**
 ```json
 {
-  "tool": "create_function",
+  "tool": "function",
   "parameters": {
+    "action": "create",
     "function_script": "CREATE FUNCTION dbo.CalculateOrderTotal(@OrderID INT)\nRETURNS DECIMAL(10,2)\nAS\nBEGIN\n    DECLARE @Total DECIMAL(10,2)\n    \n    SELECT @Total = SUM(Quantity * UnitPrice)\n    FROM OrderDetails\n    WHERE OrderID = @OrderID\n    \n    RETURN ISNULL(@Total, 0)\nEND"
   }
 }
 ```
 
-#### **Performance Analysis**
+#### **Advanced Performance Analysis**
 ```json
 {
-  "tool": "get_missing_index_recommendations"
+  "tool": "index_analysis",
+  "parameters": {
+    "action": "missing_recommendations"
+  }
 }
 
 {
-  "tool": "get_unused_indexes"
+  "tool": "index_analysis",
+  "parameters": {
+    "action": "unused"
+  }
 }
 
 {
-  "tool": "get_top_waits"
+  "tool": "performance",
+  "parameters": {
+    "action": "top_waits"
+  }
+}
+
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "slow_queries",
+    "min_elapsed_ms": 1000,
+    "top_n": 10
+  }
+}
+```
+
+### **🔍 New Performance Monitoring Examples**
+
+#### **Monitor Database Connection Statistics**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "connection_stats"
+  }
+}
+```
+
+#### **Analyze Historical Blocking Sessions**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "previous_blocking",
+    "hours_back": 24,
+    "min_duration_seconds": 5
+  }
+}
+```
+
+#### **Get Comprehensive Database Performance Stats**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "database_stats",
+    "include_query_stats": true,
+    "top_queries_count": 10
+  }
+}
+```
+
+#### **Monitor Failed Login Attempts**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "failed_logins",
+    "time_period_minutes": 120
+  }
+}
+```
+
+#### **Find Fragmented Indexes**
+```json
+{
+  "tool": "index_analysis",
+  "parameters": {
+    "action": "fragmented",
+    "fragmentation_threshold": 15
+  }
+}
+```
+
+#### **Schema Management Examples**
+```json
+{
+  "tool": "schema",
+  "parameters": {
+    "action": "list_schemas"
+  }
+}
+
+{
+  "tool": "schema",
+  "parameters": {
+    "action": "table_size",
+    "table_name": "Orders"
+  }
 }
 ```
 
@@ -767,14 +918,22 @@ ERROR - Tool execution failed          # Tool error
 
 ## 📋 Summary
 
-MCP SQL Server Pro provides comprehensive database management capabilities through 35+ specialized tools, making it the most complete MCP server for Microsoft SQL Server integration. Whether you're performing basic queries, managing complex database objects, or analyzing performance, this server provides the tools you need for professional database operations.
+MCP SQL Server Pro provides comprehensive database management capabilities through **9 powerful tools with 40+ actions**, making it the most complete and well-organized MCP server for Microsoft SQL Server integration. The new streamlined architecture provides better organization while maintaining all the functionality you need for professional database operations.
 
 ### **Key Benefits**
+- ✅ **Streamlined Architecture** - 9 organized tools with 40+ actions for better usability
+- ✅ **Enhanced Performance Monitoring** - New advanced analytics and monitoring capabilities
 - ✅ **Complete Database Management** - All major database operations covered
 - ✅ **Professional Security** - Built-in validation and security measures
-- ✅ **Performance Optimization** - Advanced analytics and monitoring tools
 - ✅ **Easy Setup** - Comprehensive installation guide for any PC
 - ✅ **AI Integration** - Seamless integration with Claude Desktop and other MCP clients
+
+### **🆕 What's New in This Version**
+- **Consolidated Tools** - Streamlined from 35+ individual tools to 9 organized tools with actions
+- **Enhanced Performance Analytics** - New monitoring capabilities for connections, slow queries, and failed logins
+- **Historical Analysis** - Track previous blocking sessions and performance trends
+- **Index Fragmentation Analysis** - Advanced index optimization with customizable thresholds
+- **Better Organization** - Action-based approach for cleaner tool usage
 
 ### **Quick Start Checklist**
 - [ ] Install Python 3.8+
@@ -784,6 +943,6 @@ MCP SQL Server Pro provides comprehensive database management capabilities throu
 - [ ] Configure .env file with database details
 - [ ] Test database connection
 - [ ] Configure Claude Desktop
-- [ ] Start using 35+ database tools!
+- [ ] Start using 9 powerful database tools with 40+ actions!
 
-**Ready to get started?** Follow the installation guide above and unlock the full power of your SQL Server database with AI assistance! 🚀
+**Ready to get started?** Follow the installation guide above and unlock the full power of your SQL Server database with enhanced AI assistance! 🚀
