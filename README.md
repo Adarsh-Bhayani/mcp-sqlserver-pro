@@ -509,4 +509,5 @@ This project is open source. See the license file for details.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests. 
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests. # mcp-sqlserver-pro
+# mcp-sqlserver-pro
