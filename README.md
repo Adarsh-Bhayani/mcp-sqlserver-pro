@@ -1,50 +1,40 @@
-# 🚀 MCP SQL Server Pro - Comprehensive Database Management Server
+# 🚀 MCP SQL Server Pro - Simplified Database Management Server
 
-A powerful Model Context Protocol (MCP) server that provides complete access to Microsoft SQL Server databases. This professional-grade server enables AI assistants and Language Models to perform comprehensive database operations, schema exploration, and advanced database management through a standardized MCP interface.
+A streamlined Model Context Protocol (MCP) server that provides direct SQL query access to Microsoft SQL Server databases. This simplified version focuses on essential database operations with a clean, reliable interface for AI assistants and Language Models.
 
 ## 📋 Table of Contents
 
 - [🌟 Key Features](#-key-features)
 - [🛠️ Complete Setup Guide](#️-complete-setup-guide)
 - [⚙️ Configuration](#️-configuration)
-- [🔧 Available Tools](#-available-tools-complete-list)
-- [🎯 Usage Examples](#-usage-examples)
+- [🔧 Available Tools](#-available-tools)
+- [🎯 SQL Operation Prompt Guide](#-sql-operation-prompt-guide)
+- [💡 Usage Examples](#-usage-examples)
 - [🤖 AI Assistant Integration](#-ai-assistant-integration)
 - [🔒 Security & Best Practices](#-security--best-practices)
 - [🐛 Troubleshooting](#-troubleshooting)
 
 ## 🌟 Key Features
 
-### **🎯 Comprehensive Database Management**
-- **9 Powerful Tools with 41 Actions** - Streamlined tools with multiple actions for complete database operations
-- **Schema Exploration** - Full database hierarchy traversal (tables, views, procedures, functions, indexes)
-- **Advanced Analytics** - Enhanced performance monitoring, deadlock analysis, and optimization tools
-- **Resource Access** - All tables and views accessible as MCP resources
-- **Large Content Support** - Handles large stored procedures and complex database objects
+### **🎯 Simplified Database Management**
+- **Single Powerful Tool** - One unified database tool with 4 core operations (CREATE, READ, UPDATE, DELETE)
+- **Direct SQL Execution** - Execute raw SQL queries without complex abstractions
+- **Streamlined Architecture** - Clean, maintainable codebase focused on essential functionality
+- **Comprehensive Operations** - Full CRUD operations plus DDL (Data Definition Language) support
 
 ### **🔧 Core Capabilities**
-- **Query Execution** - SELECT, INSERT, UPDATE, DELETE with proper validation
-- **Object Management** - Create, modify, delete tables, views, procedures, functions, indexes
-- **Performance Analysis** - Missing indexes, unused indexes, blocking sessions, wait statistics
-- **Schema Operations** - Complete schema management and organization
-- **Function Management** - User-defined functions (scalar, table-valued, inline)
-- **Advanced Monitoring** - Deadlock graphs, performance metrics, system health
+- **Query Execution** - SELECT queries for data retrieval
+- **Data Modification** - INSERT, UPDATE, DELETE operations
+- **Object Creation** - CREATE tables, indexes, views, procedures, functions
+- **Schema Management** - ALTER and DROP operations for database objects
+- **Advanced Analytics** - Complex queries for performance monitoring and analysis
 
 ### **⚡ Technical Highlights**
-- **Secure Operations** - Proper query validation and SQL injection prevention
-- **Efficient Processing** - Optimized for large database objects and complex operations
+- **Secure Operations** - Proper query validation and error handling
+- **Efficient Processing** - Direct SQL execution without overhead
 - **Flexible Authentication** - Windows Authentication or SQL Server Authentication
-- **Resource Streaming** - Efficient handling of large data sets and complex objects
-- **Error Handling** - Comprehensive error reporting and validation
-- **Enhanced Performance Monitoring** - New capabilities for connection stats, slow queries, and failed logins
-
-### **🆕 New Enhanced Features**
-- **Advanced Performance Analytics** - Monitor slow queries, connection statistics, and failed login attempts
-- **Buffer Pool Memory Monitoring** - Track memory usage, cache hit ratios, and page life expectancy
-- **Historical Blocking Analysis** - Track previous blocking sessions with configurable time ranges
-- **Index Fragmentation Analysis** - Identify fragmented indexes with customizable thresholds
-- **Comprehensive Database Statistics** - Get detailed performance metrics and query statistics
-- **Streamlined Tool Architecture** - 9 powerful tools with 40+ actions for better organization
+- **Comprehensive Error Reporting** - Detailed error messages and validation
+- **Connection Management** - Automatic connection handling and cleanup
 
 ## 🛠️ Complete Setup Guide
 
@@ -62,7 +52,7 @@ Before installing MCP SQL Server Pro, ensure you have the following:
 - **Network connectivity** to SQL Server instance
 
 #### **3. System Requirements**
-- **ODBC Driver 17 for SQL Server** (critical requirement)
+- **ODBC Driver 18 for SQL Server** (critical requirement)
 - **Operating System**: Windows, macOS, or Linux
 
 ### **Step-by-Step Installation**
@@ -134,14 +124,11 @@ Before installing MCP SQL Server Pro, ensure you have the following:
    pip install python-dotenv>=1.0.1
    pip install mcp>=1.2.0
    pip install anyio>=4.5.0
-   pip install asyncio-mqtt>=0.16.2
-   pip install pytest>=7.0.0
-   pip install pytest-asyncio>=0.21.0
    ```
 
 ### **ODBC Driver Installation**
 
-The ODBC Driver 17 for SQL Server is **critical** for database connectivity.
+The ODBC Driver 18 for SQL Server is **critical** for database connectivity.
 
 #### **Windows**
 1. Download from [Microsoft Download Center](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)
@@ -149,10 +136,10 @@ The ODBC Driver 17 for SQL Server is **critical** for database connectivity.
 3. Follow installation wizard
 
 #### **macOS**
-   ```bash
+```bash
 # Using Homebrew
-   brew tap microsoft/mssql-release
-   brew install msodbcsql17 mssql-tools
+brew tap microsoft/mssql-release
+brew install msodbcsql18 mssql-tools18
 
 # Alternative: Download from Microsoft
 # Visit: https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos
@@ -166,7 +153,7 @@ curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /et
 
 # Update and install
 sudo apt-get update
-sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
 ```
 
 #### **Linux (Red Hat/CentOS)**
@@ -175,7 +162,7 @@ sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
 sudo curl -o /etc/yum.repos.d/msprod.repo https://packages.microsoft.com/config/rhel/8/prod.repo
 
 # Install driver
-sudo ACCEPT_EULA=Y yum install -y msodbcsql17 mssql-tools
+sudo ACCEPT_EULA=Y yum install -y msodbcsql18 mssql-tools18
 ```
 
 ### **Verification**
@@ -219,15 +206,15 @@ MSSQL_DATABASE=your-database-name
    # Method 1: SQL Server Authentication
 MSSQL_USER=your-username
 MSSQL_PASSWORD=your-password
-   Trusted_Connection=no
+   AUTH_METHOD=sql
    
    # Method 2: Windows Authentication
-   Trusted_Connection=yes
+   AUTH_METHOD=windows
    # (leave MSSQL_USER and MSSQL_PASSWORD empty)
    
    # Optional Settings
 MSSQL_PORT=1433
-   MSSQL_DRIVER={ODBC Driver 17 for SQL Server}
+   MSSQL_DRIVER={ODBC Driver 18 for SQL Server}
 TrustServerCertificate=yes
 ```
 
@@ -240,8 +227,8 @@ MSSQL_DATABASE=MyDatabase
 MSSQL_USER=sa
 MSSQL_PASSWORD=YourStrongPassword123!
 MSSQL_PORT=1433
+AUTH_METHOD=sql
 TrustServerCertificate=yes
-Trusted_Connection=no
 ```
 
 #### **Remote SQL Server with Windows Auth**
@@ -249,8 +236,8 @@ Trusted_Connection=no
 MSSQL_SERVER=sql-server.company.com
 MSSQL_DATABASE=ProductionDB
 MSSQL_PORT=1433
+AUTH_METHOD=windows
 TrustServerCertificate=yes
-Trusted_Connection=yes
 ```
 
 #### **Azure SQL Database**
@@ -260,8 +247,8 @@ MSSQL_DATABASE=your-database
 MSSQL_USER=your-username@your-server
 MSSQL_PASSWORD=your-password
 MSSQL_PORT=1433
+AUTH_METHOD=sql
 TrustServerCertificate=yes
-Trusted_Connection=no
 ```
 
 ### **Testing Configuration**
@@ -283,19 +270,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Build connection string
-driver = os.getenv('MSSQL_DRIVER', '{ODBC Driver 17 for SQL Server}')
+driver = os.getenv('MSSQL_DRIVER', '{ODBC Driver 18 for SQL Server}')
 server = os.getenv('MSSQL_SERVER')
 database = os.getenv('MSSQL_DATABASE')
 username = os.getenv('MSSQL_USER', '')
 password = os.getenv('MSSQL_PASSWORD', '')
 port = os.getenv('MSSQL_PORT', '1433')
 trust_cert = os.getenv('TrustServerCertificate', 'yes')
-trusted_conn = os.getenv('Trusted_Connection', 'no')
+auth_method = os.getenv('AUTH_METHOD', 'sql')
 
 conn_str = f'DRIVER={driver};SERVER={server},{port};DATABASE={database};'
-if username and password:
-    conn_str += f'UID={username};PWD={password};'
-conn_str += f'TrustServerCertificate={trust_cert};Trusted_Connection={trusted_conn};'
+if auth_method == 'sql' and username and password:
+    conn_str += f'UID={username};PWD={password};Trusted_Connection=no;'
+else:
+    conn_str += f'Trusted_Connection=yes;'
+conn_str += f'TrustServerCertificate={trust_cert};'
 
 try:
     conn = pyodbc.connect(conn_str, timeout=10)
@@ -310,136 +299,380 @@ except Exception as e:
 "
 ```
 
-## 🔧 Available Tools (Complete List)
+## 🔧 Available Tools
 
-MCP SQL Server Pro provides **9 powerful tools with 41 actions** organized into functional categories:
+MCP SQL Server Pro provides **1 powerful database tool with 4 core operations**:
 
-### **📊 1. Query Tool**
-**Execute SQL queries with read/write actions**
+### **📊 Database Tool**
+**Execute all SQL operations with comprehensive CRUD support**
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `read` | Execute SELECT queries to read data | `sql` (string) - SELECT SQL query to execute |
-| `write` | Execute INSERT, UPDATE, DELETE queries | `sql` (string) - SQL query to execute |
+| Operation | Description | Use Cases |
+|-----------|-------------|-----------|
+| `CREATE` | Execute CREATE statements | Tables, indexes, views, procedures, functions, schemas |
+| `READ` | Execute SELECT queries | Data retrieval, analysis, reporting |
+| `UPDATE` | Execute UPDATE/INSERT statements | Data modification, bulk operations |
+| `DELETE` | Execute DELETE statements | Data removal, cleanup operations |
 
-**Usage:**
+**Tool Schema:**
 ```json
 {
-  "tool": "query",
-  "parameters": {
-    "action": "read",
-    "sql": "SELECT TOP 10 * FROM Customers"
+  "name": "database",
+  "description": "Perform database operations: CREATE (tables/indexes), READ (SELECT), UPDATE (modify data), DELETE (remove data)",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "operation": {
+        "type": "string",
+        "description": "Database operation to perform",
+        "enum": ["CREATE", "READ", "UPDATE", "DELETE"]
+      },
+      "sql": {
+        "type": "string",
+        "description": "SQL query to execute"
+      }
+    },
+    "required": ["operation", "sql"]
   }
 }
 ```
 
-### **🗃️ 2. Table Tool**
-**Manage database tables with comprehensive operations**
+## 🎯 SQL Operation Prompt Guide
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `list` | List all tables in the database | None |
-| `describe` | Get detailed table schema information | `table_name` (string) |
-| `create` | Create new tables with DDL | `sql` (string) - CREATE TABLE statement |
+This section provides comprehensive prompts and examples for all SQL operations you can perform with the MCP SQL Server Pro.
 
-**Usage:**
+### **📖 READ Operations (SELECT Queries)**
+
+#### **Basic Data Retrieval**
+```
+Please show me all customers from the database.
+```
+*Translates to:*
 ```json
 {
-  "tool": "table",
+  "tool": "database",
   "parameters": {
-    "action": "describe",
-    "table_name": "Customers"
+    "operation": "READ",
+    "sql": "SELECT * FROM Customers"
   }
 }
 ```
 
-### **📋 3. Procedure Tool**
-**Complete stored procedure management**
+#### **Filtered Data Queries**
+```
+Show me all orders from the last 30 days with customer information.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "READ",
+    "sql": "SELECT o.OrderID, o.OrderDate, c.CustomerName, o.TotalAmount FROM Orders o JOIN Customers c ON o.CustomerID = c.CustomerID WHERE o.OrderDate >= DATEADD(DAY, -30, GETDATE())"
+  }
+}
+```
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `list` | List all stored procedures with metadata | None |
-| `describe` | Get complete procedure definitions | `procedure_name` (string) |
-| `create` | Create new stored procedures | `procedure_script` (string) |
-| `execute` | Execute procedures with parameters | `procedure_name` (string), `parameters` (array) |
-| `modify` | Modify existing stored procedures | `procedure_script` (string) |
-| `delete` | Delete stored procedures | `procedure_name` (string) |
-| `get_parameters` | Get detailed parameter information | `procedure_name` (string) |
+#### **Aggregation and Analytics**
+```
+Give me sales summary by month for the current year.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "READ",
+    "sql": "SELECT YEAR(OrderDate) as Year, MONTH(OrderDate) as Month, COUNT(*) as OrderCount, SUM(TotalAmount) as TotalSales FROM Orders WHERE YEAR(OrderDate) = YEAR(GETDATE()) GROUP BY YEAR(OrderDate), MONTH(OrderDate) ORDER BY Month"
+  }
+}
+```
 
-### **🔧 4. Function Tool**
-**User-defined function management**
+#### **Performance Analysis Queries**
+```
+Show me the most fragmented indexes in the database.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "READ",
+    "sql": "SELECT OBJECT_SCHEMA_NAME(ips.object_id) AS SchemaName, OBJECT_NAME(ips.object_id) AS TableName, i.name AS IndexName, ips.avg_fragmentation_in_percent FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'LIMITED') ips INNER JOIN sys.indexes i ON ips.object_id = i.object_id AND ips.index_id = i.index_id WHERE ips.avg_fragmentation_in_percent > 10 ORDER BY ips.avg_fragmentation_in_percent DESC"
+  }
+}
+```
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `list` | List all user-defined functions | None |
-| `describe` | Get function definitions | `function_name` (string) |
-| `create` | Create new functions | `function_script` (string) |
-| `execute` | Execute scalar functions | `function_name` (string), `parameters` (array) |
-| `modify` | Modify existing functions | `function_script` (string) |
-| `delete` | Delete functions | `function_name` (string) |
+#### **System Information Queries**
+```
+Show me database size and file information.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "READ",
+    "sql": "SELECT name AS FileName, size * 8.0 / 1024 AS SizeMB, CASE WHEN max_size = -1 THEN 'Unlimited' ELSE CAST(max_size * 8.0 / 1024 AS VARCHAR(20)) + ' MB' END AS MaxSize FROM sys.master_files WHERE database_id = DB_ID()"
+  }
+}
+```
 
-### **👁️ 5. View Tool**
-**Database view management**
+### **✏️ UPDATE Operations (INSERT/UPDATE Queries)**
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `list` | List all views in the database | None |
-| `describe` | Get view definitions and schema | `view_name` (string) |
-| `create` | Create new views | `view_script` (string) |
-| `modify` | Modify existing views | `view_script` (string) |
-| `delete` | Delete views | `view_name` (string) |
+#### **Insert New Records**
+```
+Add a new customer named 'John Doe' from New York, USA.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "UPDATE",
+    "sql": "INSERT INTO Customers (CustomerName, City, Country) VALUES ('John Doe', 'New York', 'USA')"
+  }
+}
+```
 
-### **🗂️ 6. Index Tool**
-**Index management and operations**
+#### **Update Existing Records**
+```
+Update the email address for customer ID 123 to 'newemail@example.com'.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "UPDATE",
+    "sql": "UPDATE Customers SET Email = 'newemail@example.com' WHERE CustomerID = 123"
+  }
+}
+```
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `list` | List all indexes (optionally by table) | `table_name` (optional string) |
-| `describe` | Get detailed index information | `index_name` (string), `table_name` (string) |
-| `create` | Create new indexes | `index_script` (string) |
-| `delete` | Delete indexes | `index_name` (string), `table_name` (string) |
+#### **Bulk Data Operations**
+```
+Update all product prices by increasing them by 5%.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "UPDATE",
+    "sql": "UPDATE Products SET Price = Price * 1.05"
+  }
+}
+```
 
-### **📁 7. Schema Tool**
-**Database schema and metadata management**
+#### **Complex Insert with Joins**
+```
+Insert order details for all products in category 'Electronics' for customer ID 456.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "UPDATE",
+    "sql": "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, UnitPrice) SELECT 1001, ProductID, 1, Price FROM Products WHERE Category = 'Electronics'"
+  }
+}
+```
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `list_schemas` | List all schemas in the database | None |
-| `list_objects` | List all database objects by schema | `schema_name` (optional string) |
-| `table_size` | Get row count and disk space usage | `table_name` (string) |
+### **🗑️ DELETE Operations**
 
-### **🔍 8. Index Analysis Tool**
-**Advanced index analysis and optimization**
+#### **Delete Specific Records**
+```
+Delete the customer with ID 789.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "DELETE",
+    "sql": "DELETE FROM Customers WHERE CustomerID = 789"
+  }
+}
+```
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `unused` | Find unused indexes for optimization | None |
-| `missing_recommendations` | Get missing index suggestions | None |
-| `fragmented` | Find fragmented indexes | `fragmentation_threshold` (number, default: 10) |
+#### **Conditional Deletion**
+```
+Delete all orders older than 2 years.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "DELETE",
+    "sql": "DELETE FROM Orders WHERE OrderDate < DATEADD(YEAR, -2, GETDATE())"
+  }
+}
+```
 
-### **📈 9. Performance Tool**
-**Comprehensive performance monitoring and analysis**
+#### **Cascade Deletion with Cleanup**
+```
+Delete all order details for cancelled orders.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "DELETE",
+    "sql": "DELETE od FROM OrderDetails od INNER JOIN Orders o ON od.OrderID = o.OrderID WHERE o.Status = 'Cancelled'"
+  }
+}
+```
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `top_waits` | Get top wait types by wait time | None |
-| `connection_stats` | Get database connection statistics | None |
-| `blocking_sessions` | Get current blocking session details | None |
-| `deadlock_graph` | Get recent deadlock graph XML | None |
-| `previous_blocking` | Get historical blocking sessions | `hours_back` (number), `min_duration_seconds` (number) |
-| `database_stats` | Get comprehensive database performance stats | `include_query_stats` (boolean), `top_queries_count` (number) |
-| `slow_queries` | Get slow-performing queries | `min_elapsed_ms` (number), `top_n` (integer) |
-| `failed_logins` | Get failed login attempts | `time_period_minutes` (integer) |
-| `buffer_pool_stats` | Get buffer pool memory usage and cache hit ratios | None |
+### **🏗️ CREATE Operations (DDL Statements)**
 
-### **📋 MCP Resources**
+#### **Create Tables**
+```
+Create a new table called 'ProductReviews' with columns for ReviewID, ProductID, CustomerID, Rating, and Comment.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "CREATE",
+    "sql": "CREATE TABLE ProductReviews (ReviewID INT IDENTITY(1,1) PRIMARY KEY, ProductID INT NOT NULL, CustomerID INT NOT NULL, Rating INT CHECK (Rating >= 1 AND Rating <= 5), Comment NVARCHAR(1000), ReviewDate DATETIME DEFAULT GETDATE(), FOREIGN KEY (ProductID) REFERENCES Products(ProductID), FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID))"
+  }
+}
+```
 
-All tables and views are automatically exposed as MCP resources:
-- **URI Format**: `mssql://table_name/data` or `mssql://view_name/data`
-- **Format**: CSV with first 100 rows
-- **Access**: Direct resource access for quick data exploration
+#### **Create Indexes**
+```
+Create an index on the Orders table for OrderDate and CustomerID columns.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "CREATE",
+    "sql": "CREATE INDEX IX_Orders_OrderDate_CustomerID ON Orders (OrderDate, CustomerID)"
+  }
+}
+```
 
-## 🎯 Usage Examples
+#### **Create Views**
+```
+Create a view that shows customer order summary with total orders and total spent.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "CREATE",
+    "sql": "CREATE VIEW vw_CustomerOrderSummary AS SELECT c.CustomerID, c.CustomerName, COUNT(o.OrderID) as TotalOrders, SUM(o.TotalAmount) as TotalSpent, MAX(o.OrderDate) as LastOrderDate FROM Customers c LEFT JOIN Orders o ON c.CustomerID = o.CustomerID GROUP BY c.CustomerID, c.CustomerName"
+  }
+}
+```
+
+#### **Create Stored Procedures**
+```
+Create a stored procedure to get customer orders within a date range.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "CREATE",
+    "sql": "CREATE PROCEDURE GetCustomerOrdersByDateRange @CustomerID INT, @StartDate DATE, @EndDate DATE AS BEGIN SELECT o.OrderID, o.OrderDate, o.TotalAmount, o.Status FROM Orders o WHERE o.CustomerID = @CustomerID AND o.OrderDate BETWEEN @StartDate AND @EndDate ORDER BY o.OrderDate DESC END"
+  }
+}
+```
+
+#### **Create Functions**
+```
+Create a function to calculate the total order amount including tax.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "CREATE",
+    "sql": "CREATE FUNCTION dbo.CalculateOrderTotalWithTax(@OrderID INT, @TaxRate DECIMAL(5,4)) RETURNS DECIMAL(10,2) AS BEGIN DECLARE @Total DECIMAL(10,2) SELECT @Total = SUM(Quantity * UnitPrice) FROM OrderDetails WHERE OrderID = @OrderID RETURN @Total * (1 + @TaxRate) END"
+  }
+}
+```
+
+### **🔧 Advanced Operations**
+
+#### **Database Maintenance**
+```
+Rebuild all fragmented indexes with fragmentation over 30%.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "CREATE",
+    "sql": "DECLARE @sql NVARCHAR(1000) DECLARE index_cursor CURSOR FOR SELECT 'ALTER INDEX [' + i.name + '] ON [' + OBJECT_SCHEMA_NAME(ips.object_id) + '].[' + OBJECT_NAME(ips.object_id) + '] REBUILD' FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'LIMITED') ips INNER JOIN sys.indexes i ON ips.object_id = i.object_id AND ips.index_id = i.index_id WHERE ips.avg_fragmentation_in_percent > 30 OPEN index_cursor FETCH NEXT FROM index_cursor INTO @sql WHILE @@FETCH_STATUS = 0 BEGIN EXEC sp_executesql @sql FETCH NEXT FROM index_cursor INTO @sql END CLOSE index_cursor DEALLOCATE index_cursor"
+  }
+}
+```
+
+#### **Performance Monitoring**
+```
+Show me the top 10 slowest queries in the system.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "READ",
+    "sql": "SELECT TOP 10 qs.total_elapsed_time / qs.execution_count / 1000.0 AS avg_elapsed_time_ms, qs.execution_count, SUBSTRING(st.text, (qs.statement_start_offset/2)+1, ((CASE qs.statement_end_offset WHEN -1 THEN DATALENGTH(st.text) ELSE qs.statement_end_offset END - qs.statement_start_offset)/2) + 1) AS query_text FROM sys.dm_exec_query_stats qs CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) st ORDER BY avg_elapsed_time_ms DESC"
+  }
+}
+```
+
+#### **Security Analysis**
+```
+Show me all user permissions in the current database.
+```
+*Translates to:*
+```json
+{
+  "tool": "database",
+  "parameters": {
+    "operation": "READ",
+    "sql": "SELECT p.state_desc, p.permission_name, s.name AS principal_name, o.name AS object_name FROM sys.database_permissions p LEFT JOIN sys.objects o ON p.major_id = o.object_id LEFT JOIN sys.database_principals s ON p.grantee_principal_id = s.principal_id WHERE s.name IS NOT NULL ORDER BY s.name, p.permission_name"
+  }
+}
+```
+
+### **💡 Prompt Tips for Better Results**
+
+#### **Be Specific About Your Needs**
+- ❌ "Show me some data"
+- ✅ "Show me the top 10 customers by total order value in 2024"
+
+#### **Specify Data Ranges**
+- ❌ "Show recent orders"
+- ✅ "Show orders from the last 7 days"
+
+#### **Include Business Context**
+- ❌ "Update the table"
+- ✅ "Update product prices for items in the Electronics category, increasing by 10%"
+
+#### **Request Specific Columns**
+- ❌ "Get customer info"
+- ✅ "Get customer name, email, and total orders for customers who placed orders in the last month"
+
+#### **Use Clear Filtering Criteria**
+- ❌ "Delete old data"
+- ✅ "Delete log entries older than 90 days from the audit table"
+
+## 💡 Usage Examples
 
 ### **🚀 Starting the Server**
 
@@ -460,9 +693,9 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Query Data**
 ```json
 {
-  "tool": "query",
+  "tool": "database",
   "parameters": {
-    "action": "read",
+    "operation": "READ",
     "sql": "SELECT TOP 10 * FROM Customers ORDER BY CustomerID"
   }
 }
@@ -471,171 +704,56 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
 #### **Insert Data**
 ```json
 {
-  "tool": "query",
+  "tool": "database",
   "parameters": {
-    "action": "write",
+    "operation": "UPDATE",
     "sql": "INSERT INTO Customers (CustomerName, City, Country) VALUES ('New Customer', 'New York', 'USA')"
   }
 }
 ```
 
-#### **Explore Database Structure**
+#### **Create Database Objects**
 ```json
 {
-  "tool": "table",
+  "tool": "database",
   "parameters": {
-    "action": "list"
-  }
-}
-
-{
-  "tool": "table",
-  "parameters": {
-    "action": "describe",
-    "table_name": "Customers"
+    "operation": "CREATE",
+    "sql": "CREATE TABLE TestTable (ID INT IDENTITY(1,1) PRIMARY KEY, Name NVARCHAR(100) NOT NULL, CreatedDate DATETIME DEFAULT GETDATE())"
   }
 }
 ```
 
-### **🗃️ Advanced Object Management**
+### **🗃️ Advanced Operations**
 
-#### **Create a Comprehensive Stored Procedure**
+#### **Complex Analytics Query**
 ```json
 {
-  "tool": "procedure",
+  "tool": "database",
   "parameters": {
-    "action": "create",
-    "procedure_script": "CREATE PROCEDURE GetCustomerOrders\n    @CustomerID INT,\n    @StartDate DATE = NULL,\n    @EndDate DATE = NULL\nAS\nBEGIN\n    SELECT \n        o.OrderID,\n        o.OrderDate,\n        od.ProductID,\n        p.ProductName,\n        od.Quantity,\n        od.UnitPrice,\n        (od.Quantity * od.UnitPrice) AS LineTotal\n    FROM Orders o\n    INNER JOIN OrderDetails od ON o.OrderID = od.OrderID\n    INNER JOIN Products p ON od.ProductID = p.ProductID\n    WHERE o.CustomerID = @CustomerID\n    AND (@StartDate IS NULL OR o.OrderDate >= @StartDate)\n    AND (@EndDate IS NULL OR o.OrderDate <= @EndDate)\n    ORDER BY o.OrderDate DESC, od.ProductID\nEND"
+    "operation": "READ",
+    "sql": "WITH MonthlySales AS (SELECT YEAR(OrderDate) as Year, MONTH(OrderDate) as Month, SUM(TotalAmount) as Sales FROM Orders GROUP BY YEAR(OrderDate), MONTH(OrderDate)) SELECT Year, Month, Sales, LAG(Sales) OVER (ORDER BY Year, Month) as PreviousMonth, Sales - LAG(Sales) OVER (ORDER BY Year, Month) as Growth FROM MonthlySales ORDER BY Year, Month"
   }
 }
 ```
 
-#### **Create a User-Defined Function**
+#### **Database Maintenance**
 ```json
 {
-  "tool": "function",
+  "tool": "database",
   "parameters": {
-    "action": "create",
-    "function_script": "CREATE FUNCTION dbo.CalculateOrderTotal(@OrderID INT)\nRETURNS DECIMAL(10,2)\nAS\nBEGIN\n    DECLARE @Total DECIMAL(10,2)\n    \n    SELECT @Total = SUM(Quantity * UnitPrice)\n    FROM OrderDetails\n    WHERE OrderID = @OrderID\n    \n    RETURN ISNULL(@Total, 0)\nEND"
+    "operation": "CREATE",
+    "sql": "UPDATE STATISTICS Customers WITH FULLSCAN"
   }
 }
 ```
 
-#### **Advanced Performance Analysis**
+#### **Performance Analysis**
 ```json
 {
-  "tool": "index_analysis",
+  "tool": "database",
   "parameters": {
-    "action": "missing_recommendations"
-  }
-}
-
-{
-  "tool": "index_analysis",
-  "parameters": {
-    "action": "unused"
-  }
-}
-
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "top_waits"
-  }
-}
-
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "slow_queries",
-    "min_elapsed_ms": 1000,
-    "top_n": 10
-  }
-}
-```
-
-### **🔍 New Performance Monitoring Examples**
-
-#### **Monitor Database Connection Statistics**
-```json
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "connection_stats"
-  }
-}
-```
-
-#### **Analyze Historical Blocking Sessions**
-```json
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "previous_blocking",
-    "hours_back": 24,
-    "min_duration_seconds": 5
-  }
-}
-```
-
-#### **Get Comprehensive Database Performance Stats**
-```json
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "database_stats",
-    "include_query_stats": true,
-    "top_queries_count": 10
-  }
-}
-```
-
-#### **Monitor Failed Login Attempts**
-```json
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "failed_logins",
-    "time_period_minutes": 120
-  }
-}
-```
-
-#### **Find Fragmented Indexes**
-```json
-{
-  "tool": "index_analysis",
-  "parameters": {
-    "action": "fragmented",
-    "fragmentation_threshold": 15
-  }
-}
-```
-
-#### **Buffer Pool Memory Analysis**
-```json
-{
-  "tool": "performance",
-  "parameters": {
-    "action": "buffer_pool_stats"
-  }
-}
-```
-
-#### **Schema Management Examples**
-```json
-{
-  "tool": "schema",
-  "parameters": {
-    "action": "list_schemas"
-  }
-}
-
-{
-  "tool": "schema",
-  "parameters": {
-    "action": "table_size",
-    "table_name": "Orders"
+    "operation": "READ",
+    "sql": "SELECT wait_type, wait_time_ms, waiting_tasks_count, signal_wait_time_ms FROM sys.dm_os_wait_stats WHERE wait_time_ms > 0 ORDER BY wait_time_ms DESC"
   }
 }
 ```
@@ -660,8 +778,8 @@ Add MCP SQL Server Pro to your Claude Desktop configuration:
         "MSSQL_USER": "your-username",
         "MSSQL_PASSWORD": "your-password",
         "MSSQL_PORT": "1433",
-        "TrustServerCertificate": "yes",
-        "Trusted_Connection": "no"
+        "AUTH_METHOD": "sql",
+        "TrustServerCertificate": "yes"
       }
     }
   }
@@ -685,10 +803,16 @@ Add MCP SQL Server Pro to your Claude Desktop configuration:
 ```json
 {
   "mcpServers": {
-    "mssql-pro": {
-      "command": "C:\\Users\\YourUsername\\mcp-sqlserver-pro\\venv\\Scripts\\python.exe",
-      "args": ["C:\\Users\\YourUsername\\mcp-sqlserver-pro\\src\\server.py"],
-      "cwd": "C:\\Users\\YourUsername\\mcp-sqlserver-pro"
+    "mssql": {
+      "command": "python",
+      "args": ["C:\\Users\\YourUsername\\Desktop\\mcp-sqlserver-pro\\src\\server.py"],
+      "cwd": "C:\\Users\\YourUsername\\Desktop\\mcp-sqlserver-pro",
+      "env": {
+        "MSSQL_SERVER": "SF-CPU-505",
+        "MSSQL_DATABASE": "Contoso",
+        "MSSQL_USER": "sa",
+        "MSSQL_PASSWORD": "YourPassword"
+      }
     }
   }
 }
@@ -719,7 +843,7 @@ After configuring Claude Desktop:
    ```
 4. **Test advanced features**:
    ```
-   Can you analyze the performance of my database and suggest missing indexes?
+   Can you analyze the database performance and show me any fragmented indexes?
    ```
 
 ## 🔒 Security & Best Practices
@@ -764,20 +888,19 @@ MSSQL_SERVER=prod-sql.internal.company.com
 MSSQL_DATABASE=ProductionDB
 MSSQL_USER=mcp_service
 MSSQL_PASSWORD=ComplexPassword123!@#
+AUTH_METHOD=sql
 TrustServerCertificate=no  # Use valid certificates in production
-Trusted_Connection=no
 ```
 
 ### **🚫 Built-in Security Features**
 
 The server includes comprehensive security measures:
 
-- **Query Type Validation**: Only allows appropriate queries for each tool
-- **SQL Injection Prevention**: Uses parameterized queries where possible
-- **DDL Operation Validation**: Validates CREATE, ALTER, DROP statements
-- **Input Sanitization**: Cleans and validates all input parameters
-- **Connection Security**: Secure connection string handling
+- **Query Type Validation**: Only allows appropriate queries for each operation type
+- **SQL Injection Prevention**: Uses parameterized queries and input validation
+- **Connection Security**: Secure connection string handling and timeout management
 - **Error Handling**: Prevents sensitive information leakage in error messages
+- **Input Sanitization**: Validates all input parameters before execution
 
 ## 🐛 Troubleshooting
 
@@ -801,12 +924,12 @@ python3 --version
 python -c "import pyodbc; print(pyodbc.drivers())"
 
 # Expected output should include:
-# ['ODBC Driver 17 for SQL Server', ...]
+# ['ODBC Driver 18 for SQL Server', ...]
 ```
 
 **If ODBC driver is missing:**
 - **Windows**: Download and install from Microsoft
-- **macOS**: `brew install msodbcsql17`
+- **macOS**: `brew install msodbcsql18`
 - **Linux**: Follow Microsoft's installation guide for your distribution
 
 #### **Virtual Environment Problems**
@@ -865,9 +988,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 **Analysis Steps:**
 1. **Check query execution plans**
-2. **Use `get_missing_index_recommendations`**
-3. **Monitor with `get_top_waits`**
-4. **Analyze with `get_blocking_sessions`**
+2. **Use index analysis queries**
+3. **Monitor wait statistics**
+4. **Analyze blocking sessions**
 
 ### **🔍 Debugging Steps**
 
@@ -881,7 +1004,7 @@ load_dotenv()
 
 # Test basic connection
 try:
-    conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={os.getenv('MSSQL_SERVER')};DATABASE={os.getenv('MSSQL_DATABASE')};UID={os.getenv('MSSQL_USER')};PWD={os.getenv('MSSQL_PASSWORD')}"
+    conn_str = f"DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={os.getenv('MSSQL_SERVER')};DATABASE={os.getenv('MSSQL_DATABASE')};UID={os.getenv('MSSQL_USER')};PWD={os.getenv('MSSQL_PASSWORD')}"
     conn = pyodbc.connect(conn_str)
     print("✅ Connection successful")
     conn.close()
@@ -895,14 +1018,14 @@ except Exception as e:
 python src/server.py
 
 # Should show:
-# INFO - Starting MCP server...
-# INFO - Server streams established
+# INFO - Simplified server initialized, starting...
+# INFO - Simplified server streams established
 ```
 
 #### **3. Tool Availability Test**
 After connecting through Claude Desktop:
 ```
-Please list all available tools and test the list_tables tool.
+Please test the database tool by showing me the current database version.
 ```
 
 ### **📞 Getting Help**
@@ -920,41 +1043,61 @@ tail -f server.log
 
 #### **Common Log Messages**
 ```
-INFO - Starting MCP server...          # Normal startup
-ERROR - Failed to connect to database  # Connection issue
-DEBUG - Executing query: SELECT...     # Query execution
-ERROR - Tool execution failed          # Tool error
+INFO - Simplified server initialized, starting...  # Normal startup
+ERROR - Database connection failed                 # Connection issue
+DEBUG - Executing tool: database                   # Tool execution
+ERROR - Error executing tool database              # Tool error
 ```
 
 ---
 
 ## 📋 Summary
 
-MCP SQL Server Pro provides comprehensive database management capabilities through **9 powerful tools with 41 actions**, making it the most complete and well-organized MCP server for Microsoft SQL Server integration. The new streamlined architecture provides better organization while maintaining all the functionality you need for professional database operations.
+MCP SQL Server Pro provides streamlined database management capabilities through **1 powerful database tool with 4 core operations** (CREATE, READ, UPDATE, DELETE), making it the most straightforward and reliable MCP server for Microsoft SQL Server integration.
 
 ### **Key Benefits**
-- ✅ **Streamlined Architecture** - 9 organized tools with 41 actions for better usability
-- ✅ **Enhanced Performance Monitoring** - New advanced analytics and monitoring capabilities
-- ✅ **Complete Database Management** - All major database operations covered
+- ✅ **Simplified Architecture** - One tool, four operations, maximum clarity
+- ✅ **Direct SQL Execution** - No abstractions, just pure SQL power
+- ✅ **Complete Database Management** - All CRUD and DDL operations supported
 - ✅ **Professional Security** - Built-in validation and security measures
-- ✅ **Easy Setup** - Comprehensive installation guide for any PC
+- ✅ **Easy Setup** - Comprehensive installation guide for any platform
 - ✅ **AI Integration** - Seamless integration with Claude Desktop and other MCP clients
 
-### **🆕 What's New in This Version**
-- **Consolidated Tools** - Streamlined from 35+ individual tools to 9 organized tools with actions
-- **Enhanced Performance Analytics** - New monitoring capabilities for connections, slow queries, and failed logins
-- **Historical Analysis** - Track previous blocking sessions and performance trends
-- **Index Fragmentation Analysis** - Advanced index optimization with customizable thresholds
-- **Better Organization** - Action-based approach for cleaner tool usage
+### **🆕 What's New in This Simplified Version**
+- **Streamlined Architecture** - Reduced complexity while maintaining full functionality
+- **Direct SQL Access** - Execute any SQL query directly without tool abstractions
+- **Better Error Handling** - Comprehensive error reporting and validation
+- **Improved Security** - Enhanced input validation and connection security
+- **Cleaner Codebase** - Maintainable, readable code structure
 
 ### **Quick Start Checklist**
 - [ ] Install Python 3.8+
-- [ ] Install ODBC Driver 17 for SQL Server
+- [ ] Install ODBC Driver 18 for SQL Server
 - [ ] Clone/download project files
 - [ ] Run installation script or manual setup
 - [ ] Configure .env file with database details
 - [ ] Test database connection
 - [ ] Configure Claude Desktop
-- [ ] Start using 9 powerful database tools with 41 actions!
+- [ ] Start using the powerful database tool with direct SQL access!
 
 **Ready to get started?** Follow the installation guide above and unlock the full power of your SQL Server database with enhanced AI assistance! 🚀
+
+## 📚 Additional Resources
+
+### **SQL Reference Guides**
+- [Microsoft SQL Server Documentation](https://docs.microsoft.com/en-us/sql/sql-server/)
+- [T-SQL Reference](https://docs.microsoft.com/en-us/sql/t-sql/)
+- [SQL Server Performance Tuning](https://docs.microsoft.com/en-us/sql/relational-databases/performance/)
+
+### **MCP Protocol**
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+- [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk)
+
+### **Community & Support**
+- Report issues on GitHub
+- Join the MCP community discussions
+- Contribute to the project development
+
+---
+
+*Last updated: August 2025*
