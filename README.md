@@ -16,7 +16,7 @@ A powerful Model Context Protocol (MCP) server that provides complete access to 
 ## 🌟 Key Features
 
 ### **🎯 Comprehensive Database Management**
-- **9 Powerful Tools with 40+ Actions** - Streamlined tools with multiple actions for complete database operations
+- **9 Powerful Tools with 41 Actions** - Streamlined tools with multiple actions for complete database operations
 - **Schema Exploration** - Full database hierarchy traversal (tables, views, procedures, functions, indexes)
 - **Advanced Analytics** - Enhanced performance monitoring, deadlock analysis, and optimization tools
 - **Resource Access** - All tables and views accessible as MCP resources
@@ -40,6 +40,7 @@ A powerful Model Context Protocol (MCP) server that provides complete access to 
 
 ### **🆕 New Enhanced Features**
 - **Advanced Performance Analytics** - Monitor slow queries, connection statistics, and failed login attempts
+- **Buffer Pool Memory Monitoring** - Track memory usage, cache hit ratios, and page life expectancy
 - **Historical Blocking Analysis** - Track previous blocking sessions with configurable time ranges
 - **Index Fragmentation Analysis** - Identify fragmented indexes with customizable thresholds
 - **Comprehensive Database Statistics** - Get detailed performance metrics and query statistics
@@ -209,15 +210,15 @@ python -c "import pyodbc, pydantic, mcp; print('All dependencies imported succes
    ```
 
 2. **Configuration Options**
-   ```env
+```env
    # Required Settings
    MSSQL_SERVER=your-server-hostname-or-ip
-   MSSQL_DATABASE=your-database-name
+MSSQL_DATABASE=your-database-name
    
    # Authentication (choose one method)
    # Method 1: SQL Server Authentication
-   MSSQL_USER=your-username
-   MSSQL_PASSWORD=your-password
+MSSQL_USER=your-username
+MSSQL_PASSWORD=your-password
    Trusted_Connection=no
    
    # Method 2: Windows Authentication
@@ -225,10 +226,10 @@ python -c "import pyodbc, pydantic, mcp; print('All dependencies imported succes
    # (leave MSSQL_USER and MSSQL_PASSWORD empty)
    
    # Optional Settings
-   MSSQL_PORT=1433
+MSSQL_PORT=1433
    MSSQL_DRIVER={ODBC Driver 17 for SQL Server}
-   TrustServerCertificate=yes
-   ```
+TrustServerCertificate=yes
+```
 
 ### **Configuration Examples**
 
@@ -311,7 +312,7 @@ except Exception as e:
 
 ## 🔧 Available Tools (Complete List)
 
-MCP SQL Server Pro provides **9 powerful tools with 40+ actions** organized into functional categories:
+MCP SQL Server Pro provides **9 powerful tools with 41 actions** organized into functional categories:
 
 ### **📊 1. Query Tool**
 **Execute SQL queries with read/write actions**
@@ -429,6 +430,7 @@ MCP SQL Server Pro provides **9 powerful tools with 40+ actions** organized into
 | `database_stats` | Get comprehensive database performance stats | `include_query_stats` (boolean), `top_queries_count` (number) |
 | `slow_queries` | Get slow-performing queries | `min_elapsed_ms` (number), `top_n` (integer) |
 | `failed_logins` | Get failed login attempts | `time_period_minutes` (integer) |
+| `buffer_pool_stats` | Get buffer pool memory usage and cache hit ratios | None |
 
 ### **📋 MCP Resources**
 
@@ -606,6 +608,16 @@ The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients
   "parameters": {
     "action": "fragmented",
     "fragmentation_threshold": 15
+  }
+}
+```
+
+#### **Buffer Pool Memory Analysis**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "buffer_pool_stats"
   }
 }
 ```
@@ -918,10 +930,10 @@ ERROR - Tool execution failed          # Tool error
 
 ## 📋 Summary
 
-MCP SQL Server Pro provides comprehensive database management capabilities through **9 powerful tools with 40+ actions**, making it the most complete and well-organized MCP server for Microsoft SQL Server integration. The new streamlined architecture provides better organization while maintaining all the functionality you need for professional database operations.
+MCP SQL Server Pro provides comprehensive database management capabilities through **9 powerful tools with 41 actions**, making it the most complete and well-organized MCP server for Microsoft SQL Server integration. The new streamlined architecture provides better organization while maintaining all the functionality you need for professional database operations.
 
 ### **Key Benefits**
-- ✅ **Streamlined Architecture** - 9 organized tools with 40+ actions for better usability
+- ✅ **Streamlined Architecture** - 9 organized tools with 41 actions for better usability
 - ✅ **Enhanced Performance Monitoring** - New advanced analytics and monitoring capabilities
 - ✅ **Complete Database Management** - All major database operations covered
 - ✅ **Professional Security** - Built-in validation and security measures
@@ -943,6 +955,6 @@ MCP SQL Server Pro provides comprehensive database management capabilities throu
 - [ ] Configure .env file with database details
 - [ ] Test database connection
 - [ ] Configure Claude Desktop
-- [ ] Start using 9 powerful database tools with 40+ actions!
+- [ ] Start using 9 powerful database tools with 41 actions!
 
 **Ready to get started?** Follow the installation guide above and unlock the full power of your SQL Server database with enhanced AI assistance! 🚀

@@ -293,18 +293,19 @@ class MSSQLServer:
                 ),
                 Tool(
                     name="index",
-                    description="Manage indexes (actions: list, describe, create, delete)",
+                    description="Manage indexes (actions: list, describe, create, delete, get_index_usage_stats)",
                     inputSchema={
                         "type": "object",
                         "properties": {
                             "action": {
                                 "type": "string",
-                                "description": "Action to perform: list | describe | create | delete",
+                                "description": "Action to perform: list | describe | create | delete | get_index_usage_stats",
                                 "enum": [
                                     "list",
                                     "describe",
                                     "create",
                                     "delete",
+                                    "get_index_usage_stats",
                                 ],
                             },
                             "table_name": {"type": "string"},
@@ -367,13 +368,13 @@ class MSSQLServer:
                 ),
                 Tool(
                     name="performance",
-                    description="Get database performance statistics and monitoring data (actions: top_waits, connection_stats, blocking_sessions, deadlock_graph, previous_blocking, database_stats, slow_queries, failed_logins)",
+                    description="Get database performance statistics and monitoring data (actions: top_waits, connection_stats, blocking_sessions, deadlock_graph, previous_blocking, database_stats, slow_queries, failed_logins, buffer_pool_stats)",
                     inputSchema={
                         "type": "object",
                         "properties": {
                             "action": {
                                 "type": "string",
-                                "description": "Action to perform: top_waits | connection_stats | blocking_sessions | deadlock_graph | previous_blocking | database_stats | slow_queries | failed_logins",
+                                "description": "Action to perform: top_waits | connection_stats | blocking_sessions | deadlock_graph | previous_blocking | database_stats | slow_queries | failed_logins | buffer_pool_stats",
                                 "enum": [
                                     "top_waits",
                                     "connection_stats",
@@ -383,6 +384,7 @@ class MSSQLServer:
                                     "database_stats",
                                     "slow_queries",
                                     "failed_logins",
+                                    "buffer_pool_stats",
                                 ],
                             },
                             "hours_back": {"type": "number"},
@@ -459,6 +461,8 @@ class MSSQLServer:
                     elif action == "failed_logins":
                         time_period = arguments.get("time_period_minutes", 120)
                         return await self._get_failed_logins(time_period)
+                    elif action == "buffer_pool_stats":
+                        return await self._get_buffer_pool_stats()
                     else:
                         return [
                             TextContent(
@@ -569,6 +573,8 @@ class MSSQLServer:
                         return await self._delete_index(
                             arguments["index_name"], arguments["table_name"]
                         )
+                    elif action == "get_index_usage_stats":
+                        return await self._get_index_usage_stats()
                     else:
                         return [
                             TextContent(
@@ -1672,6 +1678,189 @@ class MSSQLServer:
                 )
             ]
 
+    async def _get_index_usage_stats(self) -> List[TextContent]:
+        """Get index usage statistics showing most and least used indexes."""
+        sql = """
+        SELECT 
+            DB_NAME() AS database_name,
+            OBJECT_SCHEMA_NAME(i.object_id) AS schema_name,
+            OBJECT_NAME(i.object_id) AS table_name,
+            i.name AS index_name,
+            i.type_desc AS index_type,
+            ISNULL(s.user_seeks, 0) AS user_seeks,
+            ISNULL(s.user_scans, 0) AS user_scans,
+            ISNULL(s.user_lookups, 0) AS user_lookups,
+            ISNULL(s.user_updates, 0) AS user_updates,
+            ISNULL(s.user_seeks + s.user_scans + s.user_lookups, 0) AS total_reads,
+            CASE 
+                WHEN s.user_seeks + s.user_scans + s.user_lookups = 0 AND s.user_updates > 0 
+                THEN 'Unused (Write Only)'
+                WHEN s.user_seeks + s.user_scans + s.user_lookups = 0 AND s.user_updates = 0 
+                THEN 'Never Used'
+                ELSE 'Active'
+            END AS usage_status,
+            s.last_user_seek,
+            s.last_user_scan,
+            s.last_user_lookup,
+            s.last_user_update
+        FROM sys.indexes i
+        LEFT JOIN sys.dm_db_index_usage_stats s 
+            ON i.object_id = s.object_id 
+            AND i.index_id = s.index_id 
+            AND s.database_id = DB_ID()
+        WHERE i.object_id > 100  -- Exclude system tables
+            AND i.is_hypothetical = 0
+            AND i.is_disabled = 0
+            AND OBJECT_SCHEMA_NAME(i.object_id) NOT IN ('sys', 'INFORMATION_SCHEMA')
+        ORDER BY total_reads DESC, user_updates DESC;
+        """
+
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+
+                if not rows:
+                    return [
+                        TextContent(
+                            type="text", text="No index usage statistics available."
+                        )
+                    ]
+
+                lines = ["=== Index Usage Statistics ===", ""]
+
+                # Separate indexes into categories
+                most_used = []
+                least_used = []
+                unused = []
+
+                for row in rows:
+                    (
+                        database_name,
+                        schema_name,
+                        table_name,
+                        index_name,
+                        index_type,
+                        user_seeks,
+                        user_scans,
+                        user_lookups,
+                        user_updates,
+                        total_reads,
+                        usage_status,
+                        last_user_seek,
+                        last_user_scan,
+                        last_user_lookup,
+                        last_user_update,
+                    ) = row
+
+                    index_info = {
+                        "schema": schema_name,
+                        "table": table_name,
+                        "index": index_name,
+                        "type": index_type,
+                        "seeks": user_seeks,
+                        "scans": user_scans,
+                        "lookups": user_lookups,
+                        "updates": user_updates,
+                        "total_reads": total_reads,
+                        "status": usage_status,
+                        "last_seek": last_user_seek,
+                        "last_scan": last_user_scan,
+                        "last_lookup": last_user_lookup,
+                        "last_update": last_user_update,
+                    }
+
+                    if usage_status in ["Unused (Write Only)", "Never Used"]:
+                        unused.append(index_info)
+                    elif total_reads > 1000:  # High usage threshold
+                        most_used.append(index_info)
+                    else:
+                        least_used.append(index_info)
+
+                # Display Most Used Indexes
+                lines.extend(["🔥 MOST USED INDEXES (>1000 reads):", "=" * 50])
+
+                if most_used:
+                    for idx in most_used[:10]:  # Top 10 most used
+                        lines.extend(
+                            [
+                                f"📊 {idx['schema']}.{idx['table']}.{idx['index']} ({idx['type']})",
+                                f"   • Seeks: {idx['seeks']:,} | Scans: {idx['scans']:,} | Lookups: {idx['lookups']:,}",
+                                f"   • Total Reads: {idx['total_reads']:,} | Updates: {idx['updates']:,}",
+                                f"   • Last Activity: Seek={idx['last_seek'] or 'Never'} | Scan={idx['last_scan'] or 'Never'}",
+                                "",
+                            ]
+                        )
+                else:
+                    lines.extend(["   No heavily used indexes found.", ""])
+
+                # Display Least Used Indexes
+                lines.extend(["⚠️  LEAST USED INDEXES (Low activity):", "=" * 50])
+
+                if least_used:
+                    # Sort by total reads ascending to show least used first
+                    least_used_sorted = sorted(
+                        least_used, key=lambda x: x["total_reads"]
+                    )
+                    for idx in least_used_sorted[:10]:  # Bottom 10 least used
+                        lines.extend(
+                            [
+                                f"📉 {idx['schema']}.{idx['table']}.{idx['index']} ({idx['type']})",
+                                f"   • Seeks: {idx['seeks']:,} | Scans: {idx['scans']:,} | Lookups: {idx['lookups']:,}",
+                                f"   • Total Reads: {idx['total_reads']:,} | Updates: {idx['updates']:,}",
+                                f"   • Last Activity: Seek={idx['last_seek'] or 'Never'} | Scan={idx['last_scan'] or 'Never'}",
+                                "",
+                            ]
+                        )
+                else:
+                    lines.extend(["   All active indexes have high usage.", ""])
+
+                # Display Unused Indexes
+                lines.extend(["❌ UNUSED INDEXES (Consider dropping):", "=" * 50])
+
+                if unused:
+                    for idx in unused:
+                        lines.extend(
+                            [
+                                f"🗑️  {idx['schema']}.{idx['table']}.{idx['index']} ({idx['type']})",
+                                f"   • Status: {idx['status']}",
+                                f"   • Reads: {idx['total_reads']:,} | Updates: {idx['updates']:,}",
+                                f"   • Last Update: {idx['last_update'] or 'Never'}",
+                                "",
+                            ]
+                        )
+                else:
+                    lines.extend(["   No unused indexes found. ✅", ""])
+
+                # Summary statistics
+                lines.extend(
+                    [
+                        "📈 SUMMARY STATISTICS:",
+                        "=" * 50,
+                        f"• Total Indexes Analyzed: {len(rows):,}",
+                        f"• Most Used Indexes (>1000 reads): {len(most_used):,}",
+                        f"• Least Used Indexes: {len(least_used):,}",
+                        f"• Unused Indexes: {len(unused):,}",
+                        "",
+                        "💡 RECOMMENDATIONS:",
+                        "• Review unused indexes for potential removal",
+                        "• Monitor least used indexes over time",
+                        "• Consider index maintenance for heavily used indexes",
+                        "• Unused indexes consume storage and slow down DML operations",
+                    ]
+                )
+
+                return [TextContent(type="text", text="\n".join(lines))]
+
+        except Exception as e:
+            return [
+                TextContent(
+                    type="text",
+                    text=f"Error retrieving index usage statistics: {str(e)}",
+                )
+            ]
+
     async def _list_schemas(self) -> List[TextContent]:
         """List all schemas in the database."""
         with self._get_connection() as conn:
@@ -2252,6 +2441,161 @@ class MSSQLServer:
             )
 
         return [TextContent(type="text", text="\n\n".join(lines))]
+
+    async def _get_buffer_pool_stats(self) -> List[TextContent]:
+        """Get SQL Server buffer pool statistics including memory usage and cache hit ratios."""
+        sql = """
+        -- Buffer Pool Memory Usage and Cache Hit Ratios
+        SELECT 
+            -- Memory usage statistics
+            (SELECT COUNT(*) * 8.0 / 1024 FROM sys.dm_os_buffer_descriptors) AS buffer_pool_size_mb,
+            (SELECT COUNT(*) * 8.0 / 1024 FROM sys.dm_os_buffer_descriptors WHERE is_modified = 1) AS dirty_pages_mb,
+            (SELECT COUNT(*) * 8.0 / 1024 FROM sys.dm_os_buffer_descriptors WHERE is_modified = 0) AS clean_pages_mb,
+            
+            -- Cache hit ratios from performance counters
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Buffer cache hit ratio' AND object_name LIKE '%Buffer Manager%') AS buffer_cache_hit_ratio_base,
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Buffer cache hit ratio base' AND object_name LIKE '%Buffer Manager%') AS buffer_cache_hit_ratio_denominator,
+            
+            -- Page life expectancy
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Page life expectancy' AND object_name LIKE '%Buffer Manager%') AS page_life_expectancy_seconds,
+            
+            -- Page reads and writes per second
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Page reads/sec' AND object_name LIKE '%Buffer Manager%') AS page_reads_per_sec,
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Page writes/sec' AND object_name LIKE '%Buffer Manager%') AS page_writes_per_sec,
+            
+            -- Lazy writes per second
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Lazy writes/sec' AND object_name LIKE '%Buffer Manager%') AS lazy_writes_per_sec,
+            
+            -- Checkpoint pages per second
+            (SELECT cntr_value FROM sys.dm_os_performance_counters 
+             WHERE counter_name = 'Checkpoint pages/sec' AND object_name LIKE '%Buffer Manager%') AS checkpoint_pages_per_sec;
+        """
+
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql)
+                row = cursor.fetchone()
+
+                if not row:
+                    return [
+                        TextContent(
+                            type="text", text="No buffer pool statistics available."
+                        )
+                    ]
+
+                (
+                    buffer_pool_size_mb,
+                    dirty_pages_mb,
+                    clean_pages_mb,
+                    cache_hit_ratio_base,
+                    cache_hit_ratio_denominator,
+                    page_life_expectancy,
+                    page_reads_per_sec,
+                    page_writes_per_sec,
+                    lazy_writes_per_sec,
+                    checkpoint_pages_per_sec,
+                ) = row
+
+                # Calculate cache hit ratio percentage
+                cache_hit_ratio = 0.0
+                if cache_hit_ratio_denominator and cache_hit_ratio_denominator > 0:
+                    cache_hit_ratio = (
+                        cache_hit_ratio_base / cache_hit_ratio_denominator
+                    ) * 100
+
+                # Get additional memory statistics
+                cursor.execute(
+                    """
+                    SELECT 
+                        physical_memory_kb / 1024 AS total_physical_memory_mb,
+                        virtual_memory_kb / 1024 AS total_virtual_memory_mb,
+                        committed_kb / 1024 AS committed_memory_mb,
+                        committed_target_kb / 1024 AS committed_target_mb
+                    FROM sys.dm_os_sys_info;
+                """
+                )
+                memory_row = cursor.fetchone()
+
+                lines = ["=== SQL Server Buffer Pool Statistics ===", ""]
+
+                # Memory usage
+                lines.extend(
+                    [
+                        "📊 Buffer Pool Memory Usage:",
+                        f"  • Total Buffer Pool Size: {buffer_pool_size_mb or 0:.2f} MB",
+                        f"  • Dirty Pages (Modified): {dirty_pages_mb or 0:.2f} MB",
+                        f"  • Clean Pages: {clean_pages_mb or 0:.2f} MB",
+                        "",
+                    ]
+                )
+
+                # Cache performance
+                lines.extend(
+                    [
+                        "🎯 Cache Performance:",
+                        f"  • Buffer Cache Hit Ratio: {cache_hit_ratio:.2f}%",
+                        f"  • Page Life Expectancy: {page_life_expectancy or 0:,} seconds ({(page_life_expectancy or 0) / 60:.1f} minutes)",
+                        "",
+                    ]
+                )
+
+                # I/O statistics
+                lines.extend(
+                    [
+                        "💾 I/O Statistics (per second):",
+                        f"  • Page Reads: {page_reads_per_sec or 0:,}",
+                        f"  • Page Writes: {page_writes_per_sec or 0:,}",
+                        f"  • Lazy Writes: {lazy_writes_per_sec or 0:,}",
+                        f"  • Checkpoint Pages: {checkpoint_pages_per_sec or 0:,}",
+                        "",
+                    ]
+                )
+
+                # System memory info
+                if memory_row:
+                    (
+                        total_physical_mb,
+                        total_virtual_mb,
+                        committed_mb,
+                        committed_target_mb,
+                    ) = memory_row
+                    lines.extend(
+                        [
+                            "🖥️ System Memory Info:",
+                            f"  • Total Physical Memory: {total_physical_mb or 0:,.0f} MB",
+                            f"  • Total Virtual Memory: {total_virtual_mb or 0:,.0f} MB",
+                            f"  • Committed Memory: {committed_mb or 0:,.0f} MB",
+                            f"  • Committed Target: {committed_target_mb or 0:,.0f} MB",
+                            "",
+                        ]
+                    )
+
+                # Performance recommendations
+                lines.extend(
+                    [
+                        "💡 Performance Insights:",
+                        f"  • Cache Hit Ratio Status: {'✅ Excellent' if cache_hit_ratio >= 95 else '⚠️ Needs attention' if cache_hit_ratio >= 90 else '❌ Poor'}",
+                        f"  • Page Life Expectancy Status: {'✅ Good' if (page_life_expectancy or 0) >= 300 else '⚠️ Low' if (page_life_expectancy or 0) >= 60 else '❌ Critical'}",
+                        f"  • Buffer Pool Utilization: {((buffer_pool_size_mb or 0) / max((committed_target_mb or 1), 1)) * 100:.1f}% of target",
+                    ]
+                )
+
+                return [TextContent(type="text", text="\n".join(lines))]
+
+        except Exception as e:
+            return [
+                TextContent(
+                    type="text",
+                    text=f"Error retrieving buffer pool statistics: {str(e)}",
+                )
+            ]
 
     async def run(self):
         """Run the MCP server."""
