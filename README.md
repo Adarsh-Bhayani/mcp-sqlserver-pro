@@ -1,512 +1,948 @@
-# MSSQL MCP Server
+# 🚀 MCP SQL Server Pro - Comprehensive Database Management Server
 
-A Model Context Protocol (MCP) server that provides comprehensive access to Microsoft SQL Server databases. This enhanced server enables Language Models to inspect database schemas, execute queries, manage database objects, and perform advanced database operations through a standardized interface.
+A powerful Model Context Protocol (MCP) server that provides complete access to Microsoft SQL Server databases. This professional-grade server enables AI assistants and Language Models to perform comprehensive database operations, schema exploration, and advanced database management through a standardized MCP interface.
 
-## 🚀 Enhanced Features
+## 📋 Table of Contents
 
-### **Complete Database Schema Traversal**
-- **23 comprehensive database management tools** (expanded from 5 basic operations)
-- **Full database object hierarchy exploration** - tables, views, stored procedures, indexes, schemas
-- **Advanced database object management** - create, modify, delete operations
-- **Intelligent resource access** - all tables and views available as MCP resources
-- **Large content handling** - retrieves complete stored procedures (1400+ lines) without truncation
+- [🌟 Key Features](#-key-features)
+- [🛠️ Complete Setup Guide](#️-complete-setup-guide)
+- [⚙️ Configuration](#️-configuration)
+- [🔧 Available Tools](#-available-tools-complete-list)
+- [🎯 Usage Examples](#-usage-examples)
+- [🤖 AI Assistant Integration](#-ai-assistant-integration)
+- [🔒 Security & Best Practices](#-security--best-practices)
+- [🐛 Troubleshooting](#-troubleshooting)
 
-### **Core Capabilities**
-- **Database Connection**: Connect to MSSQL Server instances with flexible authentication
-- **Schema Inspection**: Complete database object exploration and management
-- **Query Execution**: Execute SELECT, INSERT, UPDATE, DELETE, and DDL queries
-- **Stored Procedure Management**: Create, modify, execute, and manage stored procedures
-- **View Management**: Create, modify, delete, and describe views
-- **Index Management**: Create, delete, and analyze indexes
-- **Resource Access**: Browse table and view data as MCP resources
+## 🌟 Key Features
 
-- **Security**: Read-only and write operations are properly separated and validated
+### **🎯 Comprehensive Database Management**
+- **9 Powerful Tools with 40+ Actions** - Streamlined tools with multiple actions for complete database operations
+- **Schema Exploration** - Full database hierarchy traversal (tables, views, procedures, functions, indexes)
+- **Advanced Analytics** - Enhanced performance monitoring, deadlock analysis, and optimization tools
+- **Resource Access** - All tables and views accessible as MCP resources
+- **Large Content Support** - Handles large stored procedures and complex database objects
 
-## ⚠️ Important Usage Guidelines for Engineering Teams
+### **🔧 Core Capabilities**
+- **Query Execution** - SELECT, INSERT, UPDATE, DELETE with proper validation
+- **Object Management** - Create, modify, delete tables, views, procedures, functions, indexes
+- **Performance Analysis** - Missing indexes, unused indexes, blocking sessions, wait statistics
+- **Schema Operations** - Complete schema management and organization
+- **Function Management** - User-defined functions (scalar, table-valued, inline)
+- **Advanced Monitoring** - Deadlock graphs, performance metrics, system health
 
-### **Database Limitation**
-**🔴 CRITICAL: Limit to ONE database per MCP server instance**
+### **⚡ Technical Highlights**
+- **Secure Operations** - Proper query validation and SQL injection prevention
+- **Efficient Processing** - Optimized for large database objects and complex operations
+- **Flexible Authentication** - Windows Authentication or SQL Server Authentication
+- **Resource Streaming** - Efficient handling of large data sets and complex objects
+- **Error Handling** - Comprehensive error reporting and validation
+- **Enhanced Performance Monitoring** - New capabilities for connection stats, slow queries, and failed logins
 
-- This enhanced MCP server creates **23 tools per database**
-- Cursor has a **40-tool limit** across all MCP servers
-- Using multiple database instances will exceed Cursor's tool limit
-- For multiple databases, use separate MCP server instances in different projects
+### **🆕 New Enhanced Features**
+- **Advanced Performance Analytics** - Monitor slow queries, connection statistics, and failed login attempts
+- **Historical Blocking Analysis** - Track previous blocking sessions with configurable time ranges
+- **Index Fragmentation Analysis** - Identify fragmented indexes with customizable thresholds
+- **Comprehensive Database Statistics** - Get detailed performance metrics and query statistics
+- **Streamlined Tool Architecture** - 9 powerful tools with 40+ actions for better organization
 
-### **Large Content Limitations**
-**⚠️ IMPORTANT: File operations not supported within chat context**
+## 🛠️ Complete Setup Guide
 
-- Large stored procedures (1400+ lines) can be retrieved and viewed in chat
-- However, saving large content to files via MCP tools is not reliable due to token limits
-- **For bulk data extraction**: Use standalone Python scripts with direct database connections
-- **Recommended approach**: Copy-paste smaller procedures from chat, use external scripts for large ones
+### **Prerequisites**
 
-### **Tool Distribution**
-- **Core Tools**: 5 (read_query, write_query, list_tables, describe_table, create_table)
-- **Stored Procedures**: 6 tools (create, modify, delete, list, describe, execute, get_parameters)
-- **Views**: 5 tools (create, modify, delete, list, describe)
-- **Indexes**: 4 tools (create, delete, list, describe)
-- **Schema Management**: 2 tools (list_schemas, list_all_objects)
-- **Total**: 23 tools + enhanced write_query supporting all database object operations
+Before installing MCP SQL Server Pro, ensure you have the following:
 
-## Installation
+#### **1. Python Requirements**
+- **Python 3.8 or higher** (Python 3.10+ recommended)
+- **pip** (Python package installer)
 
-### Prerequisites
+#### **2. Database Requirements**
+- **Microsoft SQL Server** (2016 or later)
+- **Database access permissions** (read/write as needed)
+- **Network connectivity** to SQL Server instance
 
-- Python 3.10 or higher
-- ODBC Driver 17 for SQL Server
-- Access to an MSSQL Server instance
+#### **3. System Requirements**
+- **ODBC Driver 17 for SQL Server** (critical requirement)
+- **Operating System**: Windows, macOS, or Linux
 
-### Quick Setup
+### **Step-by-Step Installation**
 
-1. **Clone or create the project directory:**
+#### **Option 1: Automated Installation (Recommended)**
+
+1. **Download/Clone the Project**
    ```bash
-   mkdir mcp-sqlserver && cd mcp-sqlserver
+   # Clone from repository
+   git clone https://github.com/your-repo/mcp-sqlserver-pro.git
+   cd mcp-sqlserver-pro
+   
+   # Or create directory and download files
+   mkdir mcp-sqlserver-pro
+   cd mcp-sqlserver-pro
+   # Download all project files to this directory
    ```
 
-2. **Run the installation script:**
+2. **Run Automated Installation**
    ```bash
+   # Make installation script executable (Linux/macOS)
    chmod +x install.sh
+   
+   # Run installation
    ./install.sh
    ```
 
-3. **Configure your database connection:**
-   ```bash
-   cp env.example .env
-   # Edit .env with your database details
-   ```
-
-### Manual Installation
-
-1. **Create virtual environment:**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-2. **Install dependencies:**
-   ```bash
+   **For Windows (PowerShell):**
+   ```powershell
+   # Create virtual environment
+   python -m venv venv
+   
+   # Activate virtual environment
+   .\venv\Scripts\Activate.ps1
+   
+   # Install dependencies
    pip install -r requirements.txt
    ```
 
-3. **Install ODBC Driver (macOS):**
+#### **Option 2: Manual Installation**
+
+1. **Create Project Directory**
    ```bash
-   brew tap microsoft/mssql-release
-   brew install msodbcsql17 mssql-tools
+   mkdir mcp-sqlserver-pro
+   cd mcp-sqlserver-pro
    ```
 
-## Configuration
+2. **Create Virtual Environment**
+   ```bash
+   # Create virtual environment
+   python3 -m venv venv
+   
+   # Activate virtual environment
+   # Linux/macOS:
+   source venv/bin/activate
+   
+   # Windows:
+   venv\Scripts\activate
+   ```
 
-Create a `.env` file with your database configuration:
+3. **Install Dependencies**
+   ```bash
+   # Upgrade pip first
+   pip install --upgrade pip
+   
+   # Install required packages
+   pip install pyodbc>=4.0.39
+   pip install pydantic>=2.0.0
+   pip install python-dotenv>=1.0.1
+   pip install mcp>=1.2.0
+   pip install anyio>=4.5.0
+   pip install asyncio-mqtt>=0.16.2
+   pip install pytest>=7.0.0
+   pip install pytest-asyncio>=0.21.0
+   ```
 
+### **ODBC Driver Installation**
+
+The ODBC Driver 17 for SQL Server is **critical** for database connectivity.
+
+#### **Windows**
+1. Download from [Microsoft Download Center](https://docs.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server)
+2. Run the installer as Administrator
+3. Follow installation wizard
+
+#### **macOS**
+   ```bash
+# Using Homebrew
+   brew tap microsoft/mssql-release
+   brew install msodbcsql17 mssql-tools
+
+# Alternative: Download from Microsoft
+# Visit: https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos
+```
+
+#### **Linux (Ubuntu/Debian)**
+```bash
+# Add Microsoft repository
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+
+# Update and install
+sudo apt-get update
+sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+```
+
+#### **Linux (Red Hat/CentOS)**
+```bash
+# Add Microsoft repository
+sudo curl -o /etc/yum.repos.d/msprod.repo https://packages.microsoft.com/config/rhel/8/prod.repo
+
+# Install driver
+sudo ACCEPT_EULA=Y yum install -y msodbcsql17 mssql-tools
+```
+
+### **Verification**
+
+After installation, verify everything is working:
+
+```bash
+# Check Python version
+python --version
+
+# Check if virtual environment is active
+which python
+
+# Check ODBC driver installation
+python -c "import pyodbc; print(pyodbc.drivers())"
+
+# Test basic imports
+python -c "import pyodbc, pydantic, mcp; print('All dependencies imported successfully')"
+```
+
+## ⚙️ Configuration
+
+### **Environment Setup**
+
+1. **Create Configuration File**
+```bash
+   # Copy example configuration
+   cp env.example .env
+   
+   # Edit with your database details
+   nano .env  # or use your preferred editor
+   ```
+
+2. **Configuration Options**
+   ```env
+   # Required Settings
+   MSSQL_SERVER=your-server-hostname-or-ip
+   MSSQL_DATABASE=your-database-name
+   
+   # Authentication (choose one method)
+   # Method 1: SQL Server Authentication
+   MSSQL_USER=your-username
+   MSSQL_PASSWORD=your-password
+   Trusted_Connection=no
+   
+   # Method 2: Windows Authentication
+   Trusted_Connection=yes
+   # (leave MSSQL_USER and MSSQL_PASSWORD empty)
+   
+   # Optional Settings
+   MSSQL_PORT=1433
+   MSSQL_DRIVER={ODBC Driver 17 for SQL Server}
+   TrustServerCertificate=yes
+   ```
+
+### **Configuration Examples**
+
+#### **Local SQL Server Instance**
 ```env
-MSSQL_DRIVER={ODBC Driver 17 for SQL Server}
-MSSQL_SERVER=your-server-address
-MSSQL_DATABASE=your-database-name
-MSSQL_USER=your-username
+MSSQL_SERVER=localhost
+MSSQL_DATABASE=MyDatabase
+MSSQL_USER=sa
+MSSQL_PASSWORD=YourStrongPassword123!
+MSSQL_PORT=1433
+TrustServerCertificate=yes
+Trusted_Connection=no
+```
+
+#### **Remote SQL Server with Windows Auth**
+```env
+MSSQL_SERVER=sql-server.company.com
+MSSQL_DATABASE=ProductionDB
+MSSQL_PORT=1433
+TrustServerCertificate=yes
+Trusted_Connection=yes
+```
+
+#### **Azure SQL Database**
+```env
+MSSQL_SERVER=your-server.database.windows.net
+MSSQL_DATABASE=your-database
+MSSQL_USER=your-username@your-server
 MSSQL_PASSWORD=your-password
 MSSQL_PORT=1433
 TrustServerCertificate=yes
+Trusted_Connection=no
 ```
 
-### Configuration Options
+### **Testing Configuration**
 
-- `MSSQL_SERVER`: Server hostname or IP address (required)
-- `MSSQL_DATABASE`: Database name to connect to (required)
-- `MSSQL_USER`: Username for authentication
-- `MSSQL_PASSWORD`: Password for authentication
-- `MSSQL_PORT`: Port number (default: 1433)
-- `MSSQL_DRIVER`: ODBC driver name (default: {ODBC Driver 17 for SQL Server})
-- `TrustServerCertificate`: Trust server certificate (default: yes)
-- `Trusted_Connection`: Use Windows authentication (default: no)
+Test your database connection before using the MCP server:
 
-## Usage
-
-### Understanding MCP Servers
-
-MCP (Model Context Protocol) servers are designed to work with AI assistants and language models. They communicate via stdin/stdout using JSON-RPC protocol, not as traditional web services.
-
-### Running the Server
-
-**For AI Assistant Integration:**
 ```bash
-python3 src/server.py
+# Activate virtual environment
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate     # Windows
+
+# Test connection
+python3 -c "
+import os
+import pyodbc
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Build connection string
+driver = os.getenv('MSSQL_DRIVER', '{ODBC Driver 17 for SQL Server}')
+server = os.getenv('MSSQL_SERVER')
+database = os.getenv('MSSQL_DATABASE')
+username = os.getenv('MSSQL_USER', '')
+password = os.getenv('MSSQL_PASSWORD', '')
+port = os.getenv('MSSQL_PORT', '1433')
+trust_cert = os.getenv('TrustServerCertificate', 'yes')
+trusted_conn = os.getenv('Trusted_Connection', 'no')
+
+conn_str = f'DRIVER={driver};SERVER={server},{port};DATABASE={database};'
+if username and password:
+    conn_str += f'UID={username};PWD={password};'
+conn_str += f'TrustServerCertificate={trust_cert};Trusted_Connection={trusted_conn};'
+
+try:
+    conn = pyodbc.connect(conn_str, timeout=10)
+    cursor = conn.cursor()
+    cursor.execute('SELECT @@VERSION')
+    version = cursor.fetchone()
+    print(f'✅ Connection successful!')
+    print(f'📊 SQL Server Version: {version[0][:50]}...')
+    conn.close()
+except Exception as e:
+    print(f'❌ Connection failed: {e}')
+"
 ```
 
-The server will start and wait for MCP protocol messages on stdin. This is how AI assistants like Claude Desktop or other MCP clients will communicate with it.
+## 🔧 Available Tools (Complete List)
 
-**For Testing and Development:**
+MCP SQL Server Pro provides **9 powerful tools with 40+ actions** organized into functional categories:
 
-1. **Test database connection:**
-   ```bash
-   python3 test_connection.py
-   ```
+### **📊 1. Query Tool**
+**Execute SQL queries with read/write actions**
 
-2. **Check server status:**
-   ```bash
-   ./status.sh
-   ```
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `read` | Execute SELECT queries to read data | `sql` (string) - SELECT SQL query to execute |
+| `write` | Execute INSERT, UPDATE, DELETE queries | `sql` (string) - SQL query to execute |
 
-3. **View available tables:**
-   ```bash
-   # The server provides tools that can be called by MCP clients
-   # Direct testing requires an MCP client or testing framework
-   ```
-
-## Available Tools (23 Total)
-
-The enhanced server provides comprehensive database management tools:
-
-### **Core Database Operations (5 tools)**
-1. **`read_query`** - Execute SELECT queries to read data
-2. **`write_query`** - Execute INSERT, UPDATE, DELETE, and DDL queries
-3. **`list_tables`** - List all tables in the database
-4. **`describe_table`** - Get schema information for a specific table
-5. **`create_table`** - Create new tables
-
-### **Stored Procedure Management (6 tools)**
-6. **`create_procedure`** - Create new stored procedures
-7. **`modify_procedure`** - Modify existing stored procedures
-8. **`delete_procedure`** - Delete stored procedures
-9. **`list_procedures`** - List all stored procedures with metadata
-10. **`describe_procedure`** - Get complete procedure definitions
-11. **`execute_procedure`** - Execute procedures with parameters
-12. **`get_procedure_parameters`** - Get detailed parameter information
-
-### **View Management (5 tools)**
-13. **`create_view`** - Create new views
-14. **`modify_view`** - Modify existing views
-15. **`delete_view`** - Delete views
-16. **`list_views`** - List all views in the database
-17. **`describe_view`** - Get view definitions and schema
-
-### **Index Management (4 tools)**
-18. **`create_index`** - Create new indexes
-19. **`delete_index`** - Delete indexes
-20. **`list_indexes`** - List all indexes (optionally by table)
-21. **`describe_index`** - Get detailed index information
-
-### **Schema Exploration (2 tools)**
-22. **`list_schemas`** - List all schemas in the database
-23. **`list_all_objects`** - List all database objects organized by schema
-
-### **Available Resources**
-
-Both tables and views are exposed as MCP resources with URIs like:
-- `mssql://table_name/data` - Access table data in CSV format
-- `mssql://view_name/data` - Access view data in CSV format
-
-Resources provide the first 100 rows of data in CSV format for quick data exploration.
-
-## Database Schema Traversal Examples
-
-### **1. Explore Database Structure**
-```
-# Start with schemas
-list_schemas
-
-# Get all objects in a specific schema
-list_all_objects(schema_name: "dbo")
-
-# Or get all objects across all schemas
-list_all_objects()
+**Usage:**
+```json
+{
+  "tool": "query",
+  "parameters": {
+    "action": "read",
+    "sql": "SELECT TOP 10 * FROM Customers"
+  }
+}
 ```
 
-### **2. Table Exploration**
-```
-# List all tables
-list_tables
+### **🗃️ 2. Table Tool**
+**Manage database tables with comprehensive operations**
 
-# Get detailed table information
-describe_table(table_name: "YourTableName")
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all tables in the database | None |
+| `describe` | Get detailed table schema information | `table_name` (string) |
+| `create` | Create new tables with DDL | `sql` (string) - CREATE TABLE statement |
 
-# Access table data as MCP resource
-# URI: mssql://YourTableName/data
-```
-
-### **3. View Management**
-```
-# List all views
-list_views
-
-# Get view definition
-describe_view(view_name: "YourViewName")
-
-# Create a new view
-create_view(view_script: "CREATE VIEW MyView AS SELECT * FROM MyTable WHERE Active = 1")
-
-# Access view data as MCP resource
-# URI: mssql://YourViewName/data
+**Usage:**
+```json
+{
+  "tool": "table",
+  "parameters": {
+    "action": "describe",
+    "table_name": "Customers"
+  }
+}
 ```
 
-### **4. Stored Procedure Operations**
-```
-# List all procedures
-list_procedures
+### **📋 3. Procedure Tool**
+**Complete stored procedure management**
 
-# Get complete procedure definition (handles large procedures like wmPostPurchase)
-describe_procedure(procedure_name: "YourProcedureName")
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all stored procedures with metadata | None |
+| `describe` | Get complete procedure definitions | `procedure_name` (string) |
+| `create` | Create new stored procedures | `procedure_script` (string) |
+| `execute` | Execute procedures with parameters | `procedure_name` (string), `parameters` (array) |
+| `modify` | Modify existing stored procedures | `procedure_script` (string) |
+| `delete` | Delete stored procedures | `procedure_name` (string) |
+| `get_parameters` | Get detailed parameter information | `procedure_name` (string) |
 
-# Save large procedures to file for analysis
-write_file(file_path: "procedure_name.sql", content: "procedure_definition")
+### **🔧 4. Function Tool**
+**User-defined function management**
 
-# Get parameter details
-get_procedure_parameters(procedure_name: "YourProcedureName")
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all user-defined functions | None |
+| `describe` | Get function definitions | `function_name` (string) |
+| `create` | Create new functions | `function_script` (string) |
+| `execute` | Execute scalar functions | `function_name` (string), `parameters` (array) |
+| `modify` | Modify existing functions | `function_script` (string) |
+| `delete` | Delete functions | `function_name` (string) |
 
-# Execute procedure
-execute_procedure(procedure_name: "YourProcedureName", parameters: ["param1", "param2"])
-```
+### **👁️ 5. View Tool**
+**Database view management**
 
-### **5. Index Management**
-```
-# List all indexes
-list_indexes()
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all views in the database | None |
+| `describe` | Get view definitions and schema | `view_name` (string) |
+| `create` | Create new views | `view_script` (string) |
+| `modify` | Modify existing views | `view_script` (string) |
+| `delete` | Delete views | `view_name` (string) |
 
-# List indexes for specific table
-list_indexes(table_name: "YourTableName")
+### **🗂️ 6. Index Tool**
+**Index management and operations**
 
-# Get index details
-describe_index(index_name: "IX_YourIndex", table_name: "YourTableName")
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list` | List all indexes (optionally by table) | `table_name` (optional string) |
+| `describe` | Get detailed index information | `index_name` (string), `table_name` (string) |
+| `create` | Create new indexes | `index_script` (string) |
+| `delete` | Delete indexes | `index_name` (string), `table_name` (string) |
 
-# Create new index
-create_index(index_script: "CREATE INDEX IX_NewIndex ON MyTable (Column1, Column2)")
-```
+### **📁 7. Schema Tool**
+**Database schema and metadata management**
 
-## Stored Procedure Management Examples
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `list_schemas` | List all schemas in the database | None |
+| `list_objects` | List all database objects by schema | `schema_name` (optional string) |
+| `table_size` | Get row count and disk space usage | `table_name` (string) |
 
-### **Create a Simple Stored Procedure**
+### **🔍 8. Index Analysis Tool**
+**Advanced index analysis and optimization**
 
-```sql
-CREATE PROCEDURE GetEmployeeCount
-AS
-BEGIN
-    SELECT COUNT(*) AS TotalEmployees FROM Employees
-END
-```
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `unused` | Find unused indexes for optimization | None |
+| `missing_recommendations` | Get missing index suggestions | None |
+| `fragmented` | Find fragmented indexes | `fragmentation_threshold` (number, default: 10) |
 
-### **Create a Stored Procedure with Parameters**
+### **📈 9. Performance Tool**
+**Comprehensive performance monitoring and analysis**
 
-```sql
-CREATE PROCEDURE GetEmployeesByDepartment
-    @DepartmentId INT,
-    @MinSalary DECIMAL(10,2) = 0
-AS
-BEGIN
-    SELECT 
-        EmployeeId,
-        FirstName,
-        LastName,
-        Salary,
-        DepartmentId
-    FROM Employees 
-    WHERE DepartmentId = @DepartmentId 
-    AND Salary >= @MinSalary
-    ORDER BY LastName, FirstName
-END
-```
+| Action | Description | Parameters |
+|--------|-------------|------------|
+| `top_waits` | Get top wait types by wait time | None |
+| `connection_stats` | Get database connection statistics | None |
+| `blocking_sessions` | Get current blocking session details | None |
+| `deadlock_graph` | Get recent deadlock graph XML | None |
+| `previous_blocking` | Get historical blocking sessions | `hours_back` (number), `min_duration_seconds` (number) |
+| `database_stats` | Get comprehensive database performance stats | `include_query_stats` (boolean), `top_queries_count` (number) |
+| `slow_queries` | Get slow-performing queries | `min_elapsed_ms` (number), `top_n` (integer) |
+| `failed_logins` | Get failed login attempts | `time_period_minutes` (integer) |
 
-### **Create a Stored Procedure with Output Parameters**
+### **📋 MCP Resources**
 
-```sql
-CREATE PROCEDURE GetDepartmentStats
-    @DepartmentId INT,
-    @EmployeeCount INT OUTPUT,
-    @AverageSalary DECIMAL(10,2) OUTPUT
-AS
-BEGIN
-    SELECT 
-        @EmployeeCount = COUNT(*),
-        @AverageSalary = AVG(Salary)
-    FROM Employees 
-    WHERE DepartmentId = @DepartmentId
-END
-```
+All tables and views are automatically exposed as MCP resources:
+- **URI Format**: `mssql://table_name/data` or `mssql://view_name/data`
+- **Format**: CSV with first 100 rows
+- **Access**: Direct resource access for quick data exploration
 
-### **Modify an Existing Stored Procedure**
+## 🎯 Usage Examples
 
-```sql
-ALTER PROCEDURE GetEmployeesByDepartment
-    @DepartmentId INT,
-    @MinSalary DECIMAL(10,2) = 0,
-    @MaxSalary DECIMAL(10,2) = 999999.99
-AS
-BEGIN
-    SELECT 
-        EmployeeId,
-        FirstName,
-        LastName,
-        Salary,
-        DepartmentId,
-        HireDate
-    FROM Employees 
-    WHERE DepartmentId = @DepartmentId 
-    AND Salary BETWEEN @MinSalary AND @MaxSalary
-    ORDER BY Salary DESC, LastName, FirstName
-END
+### **🚀 Starting the Server**
+
+```bash
+# Activate virtual environment
+source venv/bin/activate  # Linux/macOS
+# or
+venv\Scripts\activate     # Windows
+
+# Start MCP server
+python src/server.py
 ```
 
-## Large Content Handling
+The server communicates via stdin/stdout using JSON-RPC protocol for MCP clients.
 
-### **How It Works**
+### **📊 Basic Database Operations**
 
-The server efficiently handles large database objects like stored procedures:
-
-1. **Direct Retrieval**: Fetches complete content directly from SQL Server
-2. **No Truncation**: Returns full procedure definitions regardless of size
-3. **Chat Display**: Large procedures can be viewed in full within the chat interface
-4. **Memory Efficient**: Processes content through database connection streams
-
-### **Usage Examples**
-
-```
-# Describe a large procedure (gets complete definition)
-describe_procedure(procedure_name: "wmPostPurchase")
-
-# Works with procedures of any size (tested with 1400+ line procedures)
-# Content is displayed in chat for viewing and copy-paste operations
+#### **Query Data**
+```json
+{
+  "tool": "query",
+  "parameters": {
+    "action": "read",
+    "sql": "SELECT TOP 10 * FROM Customers ORDER BY CustomerID"
+  }
+}
 ```
 
-### **Limitations for File Operations**
+#### **Insert Data**
+```json
+{
+  "tool": "query",
+  "parameters": {
+    "action": "write",
+    "sql": "INSERT INTO Customers (CustomerName, City, Country) VALUES ('New Customer', 'New York', 'USA')"
+  }
+}
+```
 
-**⚠️ Important**: While large procedures can be retrieved and displayed in chat, saving them to files via MCP tools is not reliable due to inference token limits. For bulk data extraction:
+#### **Explore Database Structure**
+```json
+{
+  "tool": "table",
+  "parameters": {
+    "action": "list"
+  }
+}
 
-1. **Small procedures**: Copy-paste from chat interface
-2. **Large procedures**: Use standalone Python scripts with direct database connections
-3. **Bulk operations**: Create dedicated extraction scripts outside the MCP context
+{
+  "tool": "table",
+  "parameters": {
+    "action": "describe",
+    "table_name": "Customers"
+  }
+}
+```
 
-## Integration with AI Assistants
+### **🗃️ Advanced Object Management**
 
-### Claude Desktop
+#### **Create a Comprehensive Stored Procedure**
+```json
+{
+  "tool": "procedure",
+  "parameters": {
+    "action": "create",
+    "procedure_script": "CREATE PROCEDURE GetCustomerOrders\n    @CustomerID INT,\n    @StartDate DATE = NULL,\n    @EndDate DATE = NULL\nAS\nBEGIN\n    SELECT \n        o.OrderID,\n        o.OrderDate,\n        od.ProductID,\n        p.ProductName,\n        od.Quantity,\n        od.UnitPrice,\n        (od.Quantity * od.UnitPrice) AS LineTotal\n    FROM Orders o\n    INNER JOIN OrderDetails od ON o.OrderID = od.OrderID\n    INNER JOIN Products p ON od.ProductID = p.ProductID\n    WHERE o.CustomerID = @CustomerID\n    AND (@StartDate IS NULL OR o.OrderDate >= @StartDate)\n    AND (@EndDate IS NULL OR o.OrderDate <= @EndDate)\n    ORDER BY o.OrderDate DESC, od.ProductID\nEND"
+  }
+}
+```
 
-Add this server to your Claude Desktop configuration:
+#### **Create a User-Defined Function**
+```json
+{
+  "tool": "function",
+  "parameters": {
+    "action": "create",
+    "function_script": "CREATE FUNCTION dbo.CalculateOrderTotal(@OrderID INT)\nRETURNS DECIMAL(10,2)\nAS\nBEGIN\n    DECLARE @Total DECIMAL(10,2)\n    \n    SELECT @Total = SUM(Quantity * UnitPrice)\n    FROM OrderDetails\n    WHERE OrderID = @OrderID\n    \n    RETURN ISNULL(@Total, 0)\nEND"
+  }
+}
+```
 
+#### **Advanced Performance Analysis**
+```json
+{
+  "tool": "index_analysis",
+  "parameters": {
+    "action": "missing_recommendations"
+  }
+}
+
+{
+  "tool": "index_analysis",
+  "parameters": {
+    "action": "unused"
+  }
+}
+
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "top_waits"
+  }
+}
+
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "slow_queries",
+    "min_elapsed_ms": 1000,
+    "top_n": 10
+  }
+}
+```
+
+### **🔍 New Performance Monitoring Examples**
+
+#### **Monitor Database Connection Statistics**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "connection_stats"
+  }
+}
+```
+
+#### **Analyze Historical Blocking Sessions**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "previous_blocking",
+    "hours_back": 24,
+    "min_duration_seconds": 5
+  }
+}
+```
+
+#### **Get Comprehensive Database Performance Stats**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "database_stats",
+    "include_query_stats": true,
+    "top_queries_count": 10
+  }
+}
+```
+
+#### **Monitor Failed Login Attempts**
+```json
+{
+  "tool": "performance",
+  "parameters": {
+    "action": "failed_logins",
+    "time_period_minutes": 120
+  }
+}
+```
+
+#### **Find Fragmented Indexes**
+```json
+{
+  "tool": "index_analysis",
+  "parameters": {
+    "action": "fragmented",
+    "fragmentation_threshold": 15
+  }
+}
+```
+
+#### **Schema Management Examples**
+```json
+{
+  "tool": "schema",
+  "parameters": {
+    "action": "list_schemas"
+  }
+}
+
+{
+  "tool": "schema",
+  "parameters": {
+    "action": "table_size",
+    "table_name": "Orders"
+  }
+}
+```
+
+## 🤖 AI Assistant Integration
+
+### **Claude Desktop Configuration**
+
+Add MCP SQL Server Pro to your Claude Desktop configuration:
+
+#### **Method 1: Environment Variables in Config**
 ```json
 {
   "mcpServers": {
-    "mssql": {
-      "command": "python3",
-      "args": ["/path/to/mcp-sqlserver/src/server.py"],
-      "cwd": "/path/to/mcp-sqlserver",
+    "mssql-pro": {
+      "command": "python",
+      "args": ["/absolute/path/to/mcp-sqlserver-pro/src/server.py"],
+      "cwd": "/absolute/path/to/mcp-sqlserver-pro",
       "env": {
-        "MSSQL_SERVER": "your-server",
-        "MSSQL_DATABASE": "your-database",
+        "MSSQL_SERVER": "your-server-hostname",
+        "MSSQL_DATABASE": "your-database-name",
         "MSSQL_USER": "your-username",
-        "MSSQL_PASSWORD": "your-password"
+        "MSSQL_PASSWORD": "your-password",
+        "MSSQL_PORT": "1433",
+        "TrustServerCertificate": "yes",
+        "Trusted_Connection": "no"
       }
     }
   }
 }
 ```
 
-### Other MCP Clients
-
-The server follows the standard MCP protocol and should work with any compliant MCP client.
-
-## Development
-
-### Project Structure
-
-```
-mcp-sqlserver/
-├── src/
-│   └── server.py          # Main MCP server implementation with chunking system
-├── tests/
-│   └── test_server.py     # Unit tests
-├── requirements.txt       # Python dependencies
-├── .env                   # Database configuration (create from env.example)
-├── env.example           # Configuration template
-├── install.sh            # Installation script
-├── start.sh              # Server startup script (for development)
-├── stop.sh               # Server shutdown script
-├── status.sh             # Server status script
-└── README.md             # This file
+#### **Method 2: Using .env File (Recommended)**
+```json
+{
+  "mcpServers": {
+    "mssql-pro": {
+      "command": "python",
+      "args": ["/absolute/path/to/mcp-sqlserver-pro/src/server.py"],
+      "cwd": "/absolute/path/to/mcp-sqlserver-pro"
+    }
+  }
+}
 ```
 
-### Testing
+### **Windows Configuration Example**
+```json
+{
+  "mcpServers": {
+    "mssql-pro": {
+      "command": "C:\\Users\\YourUsername\\mcp-sqlserver-pro\\venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\YourUsername\\mcp-sqlserver-pro\\src\\server.py"],
+      "cwd": "C:\\Users\\YourUsername\\mcp-sqlserver-pro"
+    }
+  }
+}
+```
 
-Run the test suite:
+### **macOS/Linux Configuration Example**
+```json
+{
+  "mcpServers": {
+    "mssql-pro": {
+      "command": "/Users/yourusername/mcp-sqlserver-pro/venv/bin/python",
+      "args": ["/Users/yourusername/mcp-sqlserver-pro/src/server.py"],
+      "cwd": "/Users/yourusername/mcp-sqlserver-pro"
+    }
+  }
+}
+```
+
+### **Testing Integration**
+
+After configuring Claude Desktop:
+
+1. **Restart Claude Desktop**
+2. **Start a new conversation**
+3. **Test basic functionality**:
+   ```
+   Can you show me all the tables in my database?
+   ```
+4. **Test advanced features**:
+   ```
+   Can you analyze the performance of my database and suggest missing indexes?
+   ```
+
+## 🔒 Security & Best Practices
+
+### **🛡️ Database Security**
+
+#### **Authentication Best Practices**
+- **Use strong passwords** (minimum 12 characters, mixed case, numbers, symbols)
+- **Prefer Windows Authentication** when possible for integrated security
+- **Use dedicated service accounts** with minimal required permissions
+- **Enable SSL/TLS encryption** for remote connections
+
+#### **Permission Management**
+```sql
+-- Create dedicated user for MCP server
+CREATE LOGIN mcp_service WITH PASSWORD = 'YourStrongPassword123!';
+CREATE USER mcp_service FOR LOGIN mcp_service;
+
+-- Grant minimal required permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::dbo TO mcp_service;
+GRANT CREATE TABLE, CREATE PROCEDURE, CREATE FUNCTION, CREATE VIEW TO mcp_service;
+GRANT ALTER ON SCHEMA::dbo TO mcp_service;
+
+-- For read-only scenarios
+GRANT SELECT ON SCHEMA::dbo TO mcp_service;
+GRANT VIEW DEFINITION ON SCHEMA::dbo TO mcp_service;
+```
+
+### **🔐 Configuration Security**
+
+#### **Environment File Protection**
 ```bash
-python -m pytest tests/
+# Set restrictive permissions on .env file
+chmod 600 .env  # Linux/macOS
+# Windows: Use file properties to restrict access
 ```
 
-Test database connection:
+#### **Secure Configuration Example**
+```env
+# Use environment-specific configurations
+MSSQL_SERVER=prod-sql.internal.company.com
+MSSQL_DATABASE=ProductionDB
+MSSQL_USER=mcp_service
+MSSQL_PASSWORD=ComplexPassword123!@#
+TrustServerCertificate=no  # Use valid certificates in production
+Trusted_Connection=no
+```
+
+### **🚫 Built-in Security Features**
+
+The server includes comprehensive security measures:
+
+- **Query Type Validation**: Only allows appropriate queries for each tool
+- **SQL Injection Prevention**: Uses parameterized queries where possible
+- **DDL Operation Validation**: Validates CREATE, ALTER, DROP statements
+- **Input Sanitization**: Cleans and validates all input parameters
+- **Connection Security**: Secure connection string handling
+- **Error Handling**: Prevents sensitive information leakage in error messages
+
+## 🐛 Troubleshooting
+
+### **🔧 Common Installation Issues**
+
+#### **Python Version Problems**
 ```bash
-python3 test_connection.py
+# Check Python version
+python --version
+python3 --version
+
+# Install specific Python version if needed
+# Windows: Download from python.org
+# macOS: brew install python@3.11
+# Linux: sudo apt install python3.11
 ```
 
-### Logging
+#### **ODBC Driver Issues**
+```bash
+# Check installed drivers
+python -c "import pyodbc; print(pyodbc.drivers())"
 
-The server uses Python's logging module. Set the log level by modifying the `logging.basicConfig()` call in `src/server.py`.
+# Expected output should include:
+# ['ODBC Driver 17 for SQL Server', ...]
+```
 
-## Security Considerations
+**If ODBC driver is missing:**
+- **Windows**: Download and install from Microsoft
+- **macOS**: `brew install msodbcsql17`
+- **Linux**: Follow Microsoft's installation guide for your distribution
 
-- **Authentication**: Always use strong passwords and secure authentication
-- **Network**: Ensure your database server is properly secured
-- **Permissions**: Grant only necessary database permissions to the user account
-- **SSL/TLS**: Use encrypted connections when possible
-- **Query Validation**: The server validates query types and prevents unauthorized operations
-- **DDL Operations**: Create/modify/delete operations for database objects are properly validated
-- **Stored Procedure Execution**: Parameters are safely handled to prevent injection attacks
-- **Large Content Handling**: Large procedures are retrieved efficiently without truncation
-- **File Operations**: Write operations are validated and sandboxed
-- **Read-First Approach**: Exploration tools are read-only by default for production safety
+#### **Virtual Environment Problems**
+```bash
+# Recreate virtual environment
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate  # Linux/macOS
+# or venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+```
 
-## Troubleshooting
+### **🔌 Connection Issues**
 
-### Common Issues
+#### **Connection Timeout**
+```
+Error: Connection timeout
+```
 
-1. **Connection Failed**: Check your database server address, credentials, and network connectivity
-2. **ODBC Driver Not Found**: Install Microsoft ODBC Driver 17 for SQL Server
-3. **Permission Denied**: Ensure the database user has appropriate permissions
-4. **Port Issues**: Verify the correct port number and firewall settings
-5. **Large Content Issues**: Large procedures display in chat but cannot be saved to files via MCP tools
-6. **Memory Issues**: Large content is streamed efficiently from the database
+**Solutions:**
+1. **Check server address and port**
+2. **Verify firewall settings**
+3. **Test with SQL Server Management Studio**
+4. **Check SQL Server is running**
 
-### Debug Mode
+#### **Authentication Failed**
+```
+Error: Login failed for user
+```
 
-Enable debug logging by setting the log level to DEBUG in `src/server.py`:
+**Solutions:**
+1. **Verify credentials in .env file**
+2. **Check SQL Server authentication mode**
+3. **Ensure user exists and has permissions**
+4. **Test connection with SQL tools**
 
+#### **Database Not Found**
+```
+Error: Cannot open database requested by the login
+```
+
+**Solutions:**
+1. **Verify database name spelling**
+2. **Check database exists**
+3. **Ensure user has access to database**
+4. **Check database is online**
+
+### **🚀 Performance Issues**
+
+#### **Slow Query Performance**
+```bash
+# Enable debug logging
+# Edit src/server.py and change:
+logging.basicConfig(level=logging.DEBUG)
+```
+
+**Analysis Steps:**
+1. **Check query execution plans**
+2. **Use `get_missing_index_recommendations`**
+3. **Monitor with `get_top_waits`**
+4. **Analyze with `get_blocking_sessions`**
+
+### **🔍 Debugging Steps**
+
+#### **1. Basic Connectivity Test**
 ```python
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+import pyodbc
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Test basic connection
+try:
+    conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={os.getenv('MSSQL_SERVER')};DATABASE={os.getenv('MSSQL_DATABASE')};UID={os.getenv('MSSQL_USER')};PWD={os.getenv('MSSQL_PASSWORD')}"
+    conn = pyodbc.connect(conn_str)
+    print("✅ Connection successful")
+    conn.close()
+except Exception as e:
+    print(f"❌ Connection failed: {e}")
 ```
 
-### Large Content Troubleshooting
+#### **2. MCP Server Test**
+```bash
+# Test server startup
+python src/server.py
 
-If you encounter issues with large content:
+# Should show:
+# INFO - Starting MCP server...
+# INFO - Server streams established
+```
 
-1. **Copy-paste approach**: Use chat interface to view and copy large procedures
-2. **External scripts**: Create standalone Python scripts for bulk data extraction
-3. **Check memory**: Large procedures are handled efficiently by the database connection
-4. **Verify permissions**: Ensure database user can access procedure definitions
-5. **Test with smaller procedures**: Verify basic functionality first
+#### **3. Tool Availability Test**
+After connecting through Claude Desktop:
+```
+Please list all available tools and test the list_tables tool.
+```
 
-### Getting Help
+### **📞 Getting Help**
 
-1. Check the server logs for detailed error messages
-2. Verify your `.env` configuration
-3. Test the database connection independently
-4. Ensure all dependencies are installed correctly
-5. For large content issues, use copy-paste from chat or create external extraction scripts
+#### **Log Analysis**
+```bash
+# Check server logs
+tail -f server.log
 
-## Recent Enhancements
+# Check system logs
+# Windows: Event Viewer
+# Linux: journalctl -f
+# macOS: Console app
+```
 
-### **Large Content Handling (Latest)**
-- Verified complete retrieval of large stored procedures without truncation
-- Successfully tested with procedures like `wmPostPurchase` (1400+ lines, 57KB)
-- Large procedures display fully in chat interface for viewing and copy-paste
-- Efficient memory handling through database connection streaming
-- **Note**: File operations via MCP tools not reliable for large content due to token limits
+#### **Common Log Messages**
+```
+INFO - Starting MCP server...          # Normal startup
+ERROR - Failed to connect to database  # Connection issue
+DEBUG - Executing query: SELECT...     # Query execution
+ERROR - Tool execution failed          # Tool error
+```
 
-### **Complete Database Object Management**
-- Expanded from 5 to 23 comprehensive database management tools
-- Added full CRUD operations for all major database objects
-- Implemented schema traversal capabilities matching SSMS functionality
-- Added MCP resource access for tables and views
-- Enhanced security with proper operation validation
+---
 
-## License
+## 📋 Summary
 
-This project is open source. See the license file for details.
+MCP SQL Server Pro provides comprehensive database management capabilities through **9 powerful tools with 40+ actions**, making it the most complete and well-organized MCP server for Microsoft SQL Server integration. The new streamlined architecture provides better organization while maintaining all the functionality you need for professional database operations.
 
-## Contributing
+### **Key Benefits**
+- ✅ **Streamlined Architecture** - 9 organized tools with 40+ actions for better usability
+- ✅ **Enhanced Performance Monitoring** - New advanced analytics and monitoring capabilities
+- ✅ **Complete Database Management** - All major database operations covered
+- ✅ **Professional Security** - Built-in validation and security measures
+- ✅ **Easy Setup** - Comprehensive installation guide for any PC
+- ✅ **AI Integration** - Seamless integration with Claude Desktop and other MCP clients
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests. 
+### **🆕 What's New in This Version**
+- **Consolidated Tools** - Streamlined from 35+ individual tools to 9 organized tools with actions
+- **Enhanced Performance Analytics** - New monitoring capabilities for connections, slow queries, and failed logins
+- **Historical Analysis** - Track previous blocking sessions and performance trends
+- **Index Fragmentation Analysis** - Advanced index optimization with customizable thresholds
+- **Better Organization** - Action-based approach for cleaner tool usage
+
+### **Quick Start Checklist**
+- [ ] Install Python 3.8+
+- [ ] Install ODBC Driver 17 for SQL Server
+- [ ] Clone/download project files
+- [ ] Run installation script or manual setup
+- [ ] Configure .env file with database details
+- [ ] Test database connection
+- [ ] Configure Claude Desktop
+- [ ] Start using 9 powerful database tools with 40+ actions!
+
+**Ready to get started?** Follow the installation guide above and unlock the full power of your SQL Server database with enhanced AI assistance! 🚀
